@@ -105,7 +105,7 @@ class DT_RRT_Star:
                 new_node.cost = potential_cost
 
     def re_search_parent(self, new_node):
-        # Initialize the potential parent as the node itself initially
+        # Initialize the potential parent as the node’s parent
         potential_parent = new_node.parent
         best_cost = new_node.cost
         found_better_parent = False
