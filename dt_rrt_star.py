@@ -82,7 +82,7 @@ class DT_RRT_Star:
         return True
 
     def is_path_collision_free(self, start_pos, end_pos):
-        steps = int(self.distance(start_pos, end_pos) / self.step_size) + 1
+        steps = int(np.ceil(self.distance(start_pos, end_pos) / self.step_size))
         dx = (end_pos[0] - start_pos[0]) / steps
         dy = (end_pos[1] - start_pos[1]) / steps
 
