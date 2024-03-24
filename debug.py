@@ -33,7 +33,7 @@ from time import process_time_ns
 from platform import system
 from threading import Thread, Condition, Event
 from subprocess import Popen, DEVNULL
-# from multiprocessing import Process # matplotlib doesn't like being in a subthread
+from multiprocessing import Process # matplotlib doesn't like being in a subthread
 
 # Definitions
 # ---===---
@@ -86,9 +86,14 @@ def debug_planner(planner_func): # planner: RRT.find_path()
                 pause_condition.acquire(blocking=True) # wait for consistent state
 
                 # draw the current state
-                # sauron = Process(None, planner.map_env.visualize_path, args=(planner.nodes, planner._trace_path(planner.nodes[-1])))
-                # sauron.start()
-                # sauron.join()
+                sauron = Process(
+                    target=self.planner.map_env.visualize_path,
+                    args=(
+                        self.planner.nodes, self.planner._trace_path(self.planner.nodes[-1])
+                    )
+                )
+                sauron.start()
+                sauron.join()
                 # print("Current node list:\n", planner.nodes)
                 goal = self.planner.map_env.goal
                 print(
