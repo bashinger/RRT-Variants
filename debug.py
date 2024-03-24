@@ -74,6 +74,7 @@ def debug_planner(planner_func): # planner: RRT.find_path()
                 print("Press any key to pause...", end="", flush=True, file=stderr)
                 self.__blocker = Popen(wait_for_keypress_cmd, stdin=stdin, stdout=DEVNULL, stderr=DEVNULL)
                 self.__blocker.wait()
+                print(flush=True)
                 if self.__must_exit.is_set():
                     return
 
@@ -85,16 +86,7 @@ def debug_planner(planner_func): # planner: RRT.find_path()
                 is_paused = True
                 pause_condition.acquire(blocking=True) # wait for consistent state
 
-                # draw the current state
-                sauron = Process(
-                    target=self.planner.map_env.visualize_path,
-                    args=(
-                        self.planner.nodes, self.planner._trace_path(self.planner.nodes[-1])
-                    )
-                )
-                sauron.start()
-                sauron.join()
-                # print("Current node list:\n", planner.nodes)
+                # print the current state
                 goal = self.planner.map_env.goal
                 print(
                     "Current minimum distance to node: ",
@@ -104,11 +96,23 @@ def debug_planner(planner_func): # planner: RRT.find_path()
                     file=stderr
                 )
 
+                # draw the current state
+                sauron = Process(
+                    target=self.planner.map_env.visualize_path,
+                    args=(
+                        self.planner.nodes, self.planner._trace_path(self.planner.nodes[-1])
+                    )
+                )
+                sauron.start()
+                sauron.join()
+
                 # when called from a script, matplotlib will not block
                 # workaround: use a keypress detector again
+                # ! this doesn't seem to be true, but resume on keypress is nice?
                 print("Press any key to resume...", end="", flush=True)
                 self.__blocker = Popen(wait_for_keypress_cmd, stdin=stdin, stdout=DEVNULL, stderr=DEVNULL)
                 self.__blocker.wait()
+                print(flush=True)
                 is_paused = False
                 pause_condition.notify()
                 pause_condition.release()
@@ -119,7 +123,7 @@ def debug_planner(planner_func): # planner: RRT.find_path()
             self.__blocker.terminate() if self.__blocker is not None else None
 
 
-    def wrapper(planner_self_obj, *args, **kwargs):                  # self: an RRT (abstract)
+    def wrapper(planner_self_obj, *args, **kwargs):     # self: an RRT (abstract)
         #nonlocal is_paused, pause_condition
         pauser_daemon = Interjektor(planner_self_obj)
         pauser_daemon.start()
