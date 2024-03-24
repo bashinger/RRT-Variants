@@ -10,7 +10,7 @@ class Node:
         self.parent = parent  # Reference to the parent node
 
 
-class DT_RRT_Star:
+class Lazy_DT_RRT_Star:
     def __init__(self, map_env: MapEnvironment, step_size=5, neighbor_radius=20):
         self.map_env = map_env
         self.step_size = step_size
@@ -82,7 +82,7 @@ class DT_RRT_Star:
         return True
 
     def is_path_collision_free(self, start_pos, end_pos):
-        steps = int(np.ceil(self.distance(start_pos, end_pos) / self.step_size))
+        steps = int(self.distance(start_pos, end_pos) / self.step_size) + 1
         dx = (end_pos[0] - start_pos[0]) / steps
         dy = (end_pos[1] - start_pos[1]) / steps
 
@@ -105,7 +105,7 @@ class DT_RRT_Star:
                 new_node.cost = potential_cost
 
     def re_search_parent(self, new_node):
-        # Initialize the potential parent as the node’s parent
+        # Initialize the potential parent as the node’s current parent
         potential_parent = new_node.parent
         best_cost = new_node.cost
         found_better_parent = False
@@ -133,8 +133,7 @@ class DT_RRT_Star:
 
     def find_path(self):
         rrt = RRT(self.map_env)
-        last_node, _ = rrt.find_path()
-        _, shortcut_path = self._shortcut_path(last_node)
+        _, shortcut_path = self._shortcut_path(rrt.find_path()[0])
 
         while True:
             random_position = self.random_gaussian_point(shortcut_path)
@@ -146,20 +145,60 @@ class DT_RRT_Star:
             if self.is_collision_free(new_node):
                 neighbors = self.find_neighbors(new_node)
                 self.choose_best_parent(new_node, neighbors)
-                self.re_search_parent(new_node)
                 self.nodes.append(new_node)
 
                 if self.distance(new_node.position, self.map_env.goal) <= self.step_size:
-                    return new_node, self._trace_path(new_node)
+                    final_node = new_node
+                    path = self._trace_path(new_node)
+                    break
+
+        final_node: Node
+        path: list[tuple]
+        final_node, path = self.optimise_path(final_node)
+        return final_node, path
 
     def _trace_path(self, final_node):
-        path = []
+        path: list[tuple] = []
         current_node = final_node
         while current_node is not None:
             path.append(current_node.position)
             current_node = current_node.parent
         path.reverse()
         return path
+
+    def optimise_path(self, last_final_node: Node):
+        """
+        Runs the `re_search_parent` operation on an existing path
+        from the start point to the goal. Iterates from the goal, backwards,
+        tracing `.parent` pointers to find the best parent for each node.
+
+        Parameters:
+        -----------
+        final_node : Node
+            Goal node with parent set, all the way back to the start node
+
+        Returns:
+        --------
+        (Node, list[tuple])
+            A tuple containing the last node in the path (excluding the goal)
+            and the optimised path from the start to the goal
+        """
+
+        # for the first iteration, we start at the goal
+        final_node = current_node = Node(self.map_env.goal, last_final_node)
+        current_node.cost = last_final_node.cost + self.distance(last_final_node.position, self.map_env.goal)
+        self.re_search_parent(current_node)
+        # now, `current_node.parent` has our `final_node` (last excluding goal)
+        final_node = current_node.parent # to be returned
+
+        # iterate back up the tree to find the best parent for each node
+        while current_node.parent is not None:
+            self.re_search_parent(current_node)
+            current_node = current_node.parent
+
+        # retrace the path from the start to the goal
+        # and return the optimised path
+        return final_node, self._trace_path(final_node)
 
     def _shortcut_path(self, last_final_node: Node):
         """
