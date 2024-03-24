@@ -2,7 +2,7 @@ import numpy as np
 import random
 from map_environment import MapEnvironment
 from rrt import RRT
-
+from debug import debug_planner, proc_time
 
 class Node:
     def __init__(self, position, parent=None):
@@ -131,14 +131,21 @@ class DT_RRT_Star:
             new_node.parent = potential_parent
             new_node.cost = best_cost
 
+    @debug_planner
     def find_path(self):
+        # first, notify any pauser daemons that we are starting
+        self.find_path.pause_condition.acquire(blocking=True)
         rrt = RRT(self.map_env)
         last_node, _ = rrt.find_path()
         _, shortcut_path = self._shortcut_path(last_node)
-        # print("DEBUG: found shortcut path!\n Showing now…", file=stderr)
-        # self.map_env.visualize_path(rrt.nodes, shortcut_path)
+        print("INFO: found shortcut path!")
+        self.find_path.pause_condition.notify()
+        self.find_path.pause_condition.release()
 
-        while True:
+        goal_reached = False
+        while not goal_reached:
+            self.find_path.pause_condition.acquire(blocking=True)
+            self.find_path.pause_condition.wait_for(lambda: not self.find_path.paused)
             random_position = self.random_gaussian_point(shortcut_path)
             nearest = self.nearest_node(random_position)
             new_position = self.step_from_to(nearest.position, random_position)
@@ -152,7 +159,13 @@ class DT_RRT_Star:
                 self.nodes.append(new_node)
 
                 if self.distance(new_node.position, self.map_env.goal) <= self.step_size:
-                    return new_node, self._trace_path(new_node)
+                    print("INFO: Goal reached!")
+                    goal_reached = True
+
+            self.find_path.pause_condition.release()
+
+        last_node = self.nodes[-1]
+        return last_node, self._trace_path(last_node)
 
     def _trace_path(self, final_node):
         path = []
@@ -163,6 +176,7 @@ class DT_RRT_Star:
         path.reverse()
         return path
 
+    @proc_time
     def _shortcut_path(self, last_final_node: Node):
         """
         Runs the `re_search_parent` operation on an existing path
