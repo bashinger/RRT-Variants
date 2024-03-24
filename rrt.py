@@ -10,6 +10,7 @@ class Node:
     def __init__(self, position, parent=None):
         self.position = position  # Node Position (x coordinate, y coordinate)
         self.parent = parent  # Reference to the parent node
+        self.cost = float("inf")  # Cost to reach this node
 
 
 class RRT:
@@ -17,9 +18,10 @@ class RRT:
         self.map_env = map_env
         self.step_size = step_size  # Maximum distance to extend the tree in each iteration
         self.nodes = [Node(map_env.start)]
+        self.nodes[0].cost = 0 # Cost to reach the start node is 0
 
     def distance(self, a, b):
-        return np.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+        return np.linalg.norm(np.array(a) - np.array(b))
 
     def is_collision_free(self, node):
         for obstacle_anchor_point, size in self.map_env.obstacles:
@@ -56,6 +58,7 @@ class RRT:
             new_node = Node(new_position, nearest)
 
             if self.is_collision_free(new_node):
+                new_node.cost = nearest.cost + self.distance(nearest.position, new_node.position)
                 self.nodes.append(new_node)
                 if self.distance(new_node.position, self.map_env.goal) <= self.step_size:
                     return new_node, self._trace_path(new_node)
