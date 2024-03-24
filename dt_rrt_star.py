@@ -133,10 +133,13 @@ class DT_RRT_Star:
 
     def find_path(self):
         rrt = RRT(self.map_env)
-        final_node, path = rrt.find_path()
+        last_node, _ = rrt.find_path()
+        _, shortcut_path = self._shortcut_path(last_node)
+        # print("DEBUG: found shortcut path!\n Showing now…", file=stderr)
+        # self.map_env.visualize_path(rrt.nodes, shortcut_path)
 
         while True:
-            random_position = self.random_gaussian_point(path)
+            random_position = self.random_gaussian_point(shortcut_path)
             nearest = self.nearest_node(random_position)
             new_position = self.step_from_to(nearest.position, random_position)
             new_node = Node(new_position, nearest)
@@ -159,3 +162,52 @@ class DT_RRT_Star:
             current_node = current_node.parent
         path.reverse()
         return path
+
+    def _shortcut_path(self, last_final_node: Node):
+        """
+        Runs the `re_search_parent` operation on an existing path
+        from the start point to the goal. Iterates from the goal, backwards,
+        tracing `.parent` pointers to find the best parent for each node.
+
+        Parameters:
+        -----------
+        final_node : Node
+            Goal node with parent set, all the way back to the start node
+
+        Returns:
+        --------
+        (Node, list[tuple])
+            A tuple containing the last node in the path (excluding the goal)
+            and the optimised path from the start to the goal
+        """
+
+        # for the first iteration, we start at the goal
+        final_node = current_node = Node(self.map_env.goal, last_final_node)
+        current_node.cost = last_final_node.cost + self.distance(last_final_node.position, self.map_env.goal)
+        self.re_search_parent(current_node)
+        current_node = current_node.parent
+
+        # iterate back up the tree to find the best parent for each node
+        while current_node is not None:
+            self.re_search_parent(current_node)
+            current_node = current_node.parent
+
+        # make the path have nodes each of increment `step_size`
+        # by adding intermediate nodes. Needed for the Gaussian sampling
+        # to work correctly
+        current_node = final_node
+        while current_node.parent is not None:
+            if self.distance(current_node.position, current_node.parent.position) > self.step_size:
+                new_position = self.step_from_to(current_node.position, current_node.parent.position)
+                new_node = Node(new_position, current_node.parent)
+                new_node.cost = current_node.parent.cost + self.distance(new_node.position, current_node.parent.position)
+                current_node.parent = new_node
+            current_node = current_node.parent
+
+        # retrace the path from the start to the goal
+        # and return the optimised path
+        #
+        # TODO: change this to match the terminology the rest of the project
+        # `final_node` needs to be a node *within step_size* of the goal
+        # currently, it is the end goal node itself
+        return final_node, self._trace_path(final_node)
