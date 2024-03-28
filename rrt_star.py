@@ -18,7 +18,7 @@ class RRT_Star:
         self.nodes[0].cost = 0
 
     def distance(self, a, b):
-        return np.linalg.norm(np.array(a) - np.array(b))
+        return np.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
     def is_collision_free(self, node):
         for obstacle, size in self.map_env.obstacles:

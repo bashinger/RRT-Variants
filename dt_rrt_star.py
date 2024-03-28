@@ -57,7 +57,7 @@ class DT_RRT_Star:
         return gaussian_point
 
     def distance(self, a, b):
-        return np.linalg.norm(np.array(a) - np.array(b))
+        return np.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
     def nearest_node(self, position):
         return min(self.nodes, key=lambda node: self.distance(node.position, position))
