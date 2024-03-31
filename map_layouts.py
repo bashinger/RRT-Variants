@@ -112,6 +112,12 @@ class Circle(Body):
         super().__init__()
         self.radius = radius
 
+    def __str__(self) -> str:
+        return f"Circle of radius {self.radius}"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 class Rectangle(Body):
     width: float
@@ -122,6 +128,12 @@ class Rectangle(Body):
         self.width = width
         self.height = height
         return
+
+    def __str__(self) -> str:
+        return f"Rectangle of width {self.width} and height {self.height}"
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 class Obstacle:
@@ -134,7 +146,7 @@ class Obstacle:
         return
 
     def __str__(self) -> str:
-        return f"Obstacle at {self.anchor_point} of shape {self.shape}"
+        return f"Obstacle: {self.shape} at ({self.anchor_point.components[0]},{self.anchor_point.components[1]})"
 
     def __repr__(self) -> str:
         return self.__str__()
