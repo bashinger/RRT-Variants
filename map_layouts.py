@@ -6,30 +6,27 @@ from time import time
 
 from numpy import cos, sin, sqrt, tan
 
+
 class Vector:
     components: List[float]
-    '''
+    """
     Components of the vector.
     Up to 2 spatial and n miscellaneous.
     Spatial components are at the beginning of the list.
-    '''
+    """
 
     magnitude: float
     angle: float
-    '''
+    """
     Direction of the vector in radians.
-    '''
+    """
 
-    def __init__(
-            self,
-            components: List[float] | None = None,
-            polar: Tuple[float, float] | None = None
-        ) -> None:
-        '''
+    def __init__(self, components: List[float] | None = None, polar: Tuple[float, float] | None = None) -> None:
+        """
         Spatial components (up to 2) must be at the beginning of the list.
         A 1D vector will be assumed to have only an 'X' component
-        '''
-        if ((components is None and polar is None) or (components is not None and polar is not None)):
+        """
+        if (components is None and polar is None) or (components is not None and polar is not None):
             raise ValueError("Either components or polar coordinates must be provided")
         elif components is not None:
             self.components = components
@@ -49,25 +46,25 @@ class Vector:
         return
 
     @classmethod
-    def from_polar(cls, r: float, theta: float) -> Type['Vector']:
-        '''
+    def from_polar(cls, r: float, theta: float) -> Type["Vector"]:
+        """
         Constructs a vector from polar coordinates (theta in radians)
-        '''
+        """
         return cls(polar=(r, theta))
 
     @classmethod
-    def from_rectangular(cls, components: List[float]) -> Type['Vector']:
-        '''
+    def from_rectangular(cls, components: List[float]) -> Type["Vector"]:
+        """
         Constructs a vector from rectangular coordinates
-        '''
+        """
         return cls(components=components)
 
     def __update_from_components(self) -> None:
         if self.angle == 0:
             self.magnitude = self.components[0]
         else:
-            self.magnitude = sqrt((self.components[0])**2 + (self.components[1])**2)
-            self.angle = tan(self.components[1]/self.components[0])
+            self.magnitude = sqrt((self.components[0]) ** 2 + (self.components[1]) ** 2)
+            self.angle = tan(self.components[1] / self.components[0])
         return
 
     def __update_from_polar(self) -> None:
@@ -78,10 +75,10 @@ class Vector:
             self.components[1] = sin(self.angle) * self.magnitude
         return
 
-    def scale(self, factor: float) -> Type['Vector']:
-        '''
+    def scale(self, factor: float) -> Type["Vector"]:
+        """
         Scale the vector by the given factor
-        '''
+        """
         self.__update_from_components()
         if factor < 0:
             # hoping that numpy's trig can deal with -ve radians
@@ -92,16 +89,21 @@ class Vector:
     def __add__(self, other):
         if len(self.components) != len(other.components):
             raise ValueError("Cannot add vectors of different dimensions")
-        return Vector.from_rectangular([(self.components[i] + other.components[i]) for i in range(len(self.components))])
+        return Vector.from_rectangular(
+            [(self.components[i] + other.components[i]) for i in range(len(self.components))]
+        )
 
     def __sub__(self, other):
         if len(self.components) != len(other.components):
             raise ValueError("Cannot subtract vectors of different dimensions")
-        return Vector.from_rectangular([(self.components[i] - other.components[i]) for i in range(len(self.components))])
+        return Vector.from_rectangular(
+            [(self.components[i] - other.components[i]) for i in range(len(self.components))]
+        )
 
 
 class Body:
     pass
+
 
 class Circle(Body):
     radius: float
@@ -109,6 +111,18 @@ class Circle(Body):
     def __init__(self, radius: float) -> None:
         super().__init__()
         self.radius = radius
+
+
+class Rectangle(Body):
+    width: float
+    height: float
+
+    def __init__(self, width: float, height: float) -> None:
+        super().__init__()
+        self.width = width
+        self.height = height
+        return
+
 
 class DynamicObstacle:
     velocity: Vector
@@ -125,11 +139,12 @@ class DynamicObstacle:
         return
 
     def move(self, t: float):
-        '''
+        """
         Updates the position of the obstacle by time `t`
         with its inherent velocity
-        '''
+        """
         self.position += self.velocity.scale(t)
+
 
 class Layout:
     size: Tuple[int, int]
@@ -143,16 +158,19 @@ class Layout:
         self.start = (20, 20)
         self.end = (480, 480)
 
+
 class DynamicLayout(Layout):
     dynamic_obstacles: list[DynamicObstacle]
 
     def update(self, t: float):
-        '''
+        """
         Update the positions of all dynamic obstacles over time `t`
-        '''
+        """
         [obstacle.move(t) for obstacle in self.dynamic_obstacles]
 
+
 ## LAYOUTS
+
 
 ### DYNAMIC LAYOUTS
 # Basic dynamic layout
@@ -161,9 +179,7 @@ class LayoutBalloons(DynamicLayout):
     def __init__(self) -> None:
         super().__init__()
         self.obstacles = []
-        self.dynamic_obstacles = [
-            DynamicObstacle(Circle(10), (30, 210), (13, 3))
-        ]
+        self.dynamic_obstacles = [DynamicObstacle(Circle(10), (30, 210), (13, 3))]
         return
 
 
@@ -260,6 +276,7 @@ def layout_urban(size=(500, 500)):
         ((200, 250), (50, 100)),
     ]
     return size, obstacles
+
 
 def layout_narrow_pass():
     layout = {
