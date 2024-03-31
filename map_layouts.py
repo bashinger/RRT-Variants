@@ -124,6 +124,22 @@ class Rectangle(Body):
         return
 
 
+class Obstacle:
+    shape: Body
+    position: Vector
+
+    def __init__(self, shape: Body, initial_position: Vector) -> None:
+        self.shape = shape
+        self.position = initial_position
+        return
+
+    def __str__(self) -> str:
+        return f"Obstacle at {self.position} of shape {self.shape}"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
 class DynamicObstacle:
     velocity: Vector
     shape: Body
