@@ -1,5 +1,13 @@
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 import matplotlib.patches as patches
+import matplotlib.transforms as transforms
+from matplotlib.artist import Artist
+from matplotlib.animation import FuncAnimation
+from map_layouts import DynamicLayout, Circle
+from functools import partial
+from typing import Type
 
 class Visualiser:
     def __init__(
@@ -91,8 +99,70 @@ class DynamicVisualiser:
     Self-updating visualiser that continuously shows a map env.
     """
 
-    update_freq_time: float
-    update_res: int
+    render_freq: int
+    """
+    The frequency (in ms) at which the visualiser updates.
+    """
+    update_interval: float
+    """
+    The interval (in seconds) at which the objects move.
+    """
 
-    def __init__(self, freq: float, ) -> None:
-        raise NotImplementedError
+    fig: Figure
+    ax: Axes
+    layout: DynamicLayout
+    anim: FuncAnimation
+    actors: list[patches.Patch]
+
+    def __init__(self, render_freq: int, layout: DynamicLayout) -> None:
+        """
+        Parameters:
+        ----------
+        - `render_freq`: float
+            The frequency (in ms) at which the obstacles move.
+        - `layout`: Type[DynamicLayout]
+            The layout of the map.
+        """
+        self.layout = layout
+        self.render_freq = render_freq
+        self.update_interval = render_freq / 10e3
+        self.fig, self.ax = plt.subplots()
+        self.actors = []
+
+        # set up plot
+        self.ax.set_xlim(0, self.layout.size[0])
+        self.ax.set_ylim(0, self.layout.size[1])
+        self.ax.set_aspect("equal")
+        self.ax.set_title("Map Environment")
+        self.ax.plot(*self.layout.start, "go", markersize=5, label="Start")
+        self.ax.plot(*self.layout.end, "bo", markersize=5, label="Goal")
+        self.ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
+
+        # initialise dynamic obstacles
+        for obstacle in self.layout.dynamic_obstacles:
+            if type(obstacle.shape) is Circle:
+                actor = patches.Circle(tuple(obstacle.anchor_point.components[:2]), obstacle.shape.radius, linewidth=1, facecolor="red")
+                print(f"adding obstacle: {tuple(obstacle.anchor_point.components[:2])}")
+                actor.set_animated(True)
+                self.ax.add_patch(actor)
+                self.actors.append(actor)
+
+        # blit is an optimistic graphics optimisation (not available on all platforms)
+        # no harm if unavailable
+        self.anim = FuncAnimation(
+            self.fig, func=self.update, interval=self.render_freq, blit=True,
+            cache_frame_data=True, save_count=50
+        )
+        plt.show()
+        return
+
+    def update(self, frame) -> list[patches.Patch]:
+        """
+        Update the positions of the obstacles.
+        """
+        if len(self.layout.dynamic_obstacles) != len(self.actors):
+            raise IndexError("Number of obstacles seems to have changed during simulation")
+        for obstacle, actor in zip(self.layout.dynamic_obstacles, self.actors):
+            obstacle.move(self.update_interval)
+            actor.set(center=tuple(obstacle.anchor_point.components[:2]))
+        return self.actors
