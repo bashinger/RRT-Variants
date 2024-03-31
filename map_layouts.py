@@ -141,19 +141,15 @@ class Obstacle:
         return self.__str__()
 
 
-class DynamicObstacle:
+class DynamicObstacle(Obstacle):
     velocity: Vector
-    shape: Body
-    position: Vector
 
     def __init__(self, shape: Body, initial_position: Tuple, velocity: Tuple) -> None:
         if len(velocity) != len(initial_position):
             raise ValueError("Mismatched dimensions of position and velocity")
 
+        super().__init__(shape, Vector.from_rectangular(list(initial_position)))
         self.velocity = Vector.from_rectangular(list(velocity))
-        self.shape = shape
-        self.position = Vector.from_rectangular(list(initial_position))
-        return
 
     def move(self, t: float):
         """
