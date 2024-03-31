@@ -1,7 +1,147 @@
 # Description: This file contains the layout of the maps for the path planning algorithms.
 # The layout of the maps is defined as a function that returns the size of the map and the obstacles.
 
+from typing import Type, Tuple, List
+from time import time
 
+from numpy import cos, sin, sqrt, tan
+
+class Vector:
+    components: List[float]
+    '''
+    Components of the vector.
+    Up to 2 spatial and n miscellaneous.
+    Spatial components are at the beginning of the list.
+    '''
+
+    magnitude: float
+    angle: float
+    '''
+    Direction of the vector in radians.
+    '''
+
+    def __init__(self, components: List[float]) -> None:
+        '''
+        Spatial components (up to 2) must be at the beginning of the list.
+        A 1D vector will be assumed to have only an 'X' component
+        '''
+        self.components = components
+        n_components = len(components)
+        if n_components == 1:
+            self.angle = 0
+            self.magnitude = components[0]
+            self.components[1] = 0
+        elif n_components >= 2:
+            # don't update the polar members until we need them
+            pass
+        return
+
+    def __update_from_components(self):
+        if self.angle == 0:
+            self.magnitude = self.components[0]
+        else:
+            self.magnitude = sqrt((self.components[0])**2 + (self.components[1])**2)
+            self.angle = tan(self.components[1]/self.components[0])
+
+    def __update_from_polar(self):
+        if self.angle == 0:
+            self.components[0] = self.magnitude
+        else:
+            self.components[0] = cos(self.angle) * self.magnitude
+            self.components[1] = sin(self.angle) * self.magnitude
+
+    def scale(self, factor: float):
+        '''
+        Scale the vector by the given factor
+        '''
+        self.__update_from_components()
+        if factor < 0:
+            # hoping that numpy's trig can deal with -ve radians
+            angle = self.angle * -1
+        factor_magnitude = abs(factor)
+        magnitude = factor_magnitude * self.magnitude
+        self.__update_from_polar()
+        return
+
+    def __add__(self, other):
+        if len(self.components) != len(other.components):
+            raise ValueError("Cannot add vectors of different dimensions")
+        return Vector([(self.components[i] + other.components[i]) for i in range(len(self.components))])
+
+    def __sub__(self, other):
+        if len(self.components) != len(other.components):
+            raise ValueError("Cannot add vectors of different dimensions")
+        return Vector([(self.components[i] - other.components[i]) for i in range(len(self.components))])
+
+
+class Body:
+    pass
+
+class Circle(Body):
+    radius: float
+
+    def __init__(self, radius: float) -> None:
+        super().__init__()
+        self.radius = radius
+
+class DynamicObstacle:
+    velocity: Vector
+    shape: Body
+    position: Vector
+
+    def __init__(self, shape: Body, initial_position: Tuple, velocity: Tuple) -> None:
+        if len(velocity) != len(initial_position):
+            raise ValueError("Mismatched dimensions of position and velocity")
+
+        self.velocity = Vector(list(velocity))
+        self.shape = shape
+        self.position = Vector(list(initial_position))
+        return
+
+    def move(self, t: float):
+        '''
+        Updates the position of the obstacle by time `t`
+        with its inherent velocity
+        '''
+        self.position += self.velocity.scale(t)
+
+class Layout:
+    size: Tuple[int, int]
+    obstacles: list
+    start: Tuple[int, int]
+    end: Tuple[int, int]
+
+    def __init__(self) -> None:
+        # defaults
+        self.size = (500, 500)
+        self.start = (20, 20)
+        self.end = (480, 480)
+
+class DynamicLayout(Layout):
+    dynamic_obstacles: list[DynamicObstacle]
+
+    def update(self, t: float):
+        '''
+        Update the positions of all dynamic obstacles over time `t`
+        '''
+        [obstacle.move(t) for obstacle in self.dynamic_obstacles]
+
+## LAYOUTS
+
+### DYNAMIC LAYOUTS
+# Basic dynamic layout
+# No static obstacles
+class LayoutBalloons(DynamicLayout):
+    def __init__(self) -> None:
+        super().__init__()
+        self.obstacles = []
+        self.dynamic_obstacles = [
+            DynamicObstacle(Circle(10), (30, 210), (13, 3))
+        ]
+        return
+
+
+### STATIC LAYOUTS
 # The Cross - A simple cross-shaped environment
 # Testing basic navigation
 def layout_simple_cross():
