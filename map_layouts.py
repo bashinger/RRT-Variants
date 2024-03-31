@@ -20,30 +20,47 @@ class Vector:
     Direction of the vector in radians.
     '''
 
-    def __init__(self, components: List[float]) -> None:
+    def __init__(
+            self,
+            components: List[float] | None = None,
+            polar: Tuple[float, float] | None = None
+        ) -> None:
         '''
         Spatial components (up to 2) must be at the beginning of the list.
         A 1D vector will be assumed to have only an 'X' component
         '''
-        self.components = components
-        n_components = len(components)
-        if n_components == 1:
-            self.angle = 0
-            self.magnitude = components[0]
-            self.components[1] = 0
-        elif n_components >= 2:
-            # don't update the polar members until we need them
-            pass
+        if ((components is None and polar is None) or (components is not None and polar is not None)):
+            raise ValueError("Either components or polar coordinates must be provided")
+        elif components is not None:
+            self.components = components
+            n_components = len(components)
+            if n_components == 1:
+                self.angle = 0
+                self.magnitude = components[0]
+                self.components[1] = 0
+            elif n_components >= 2:
+                # don't update the polar members until we need them
+                pass
+        elif polar is not None:
+            self.magnitude, self.angle = polar
+            self.components = [0, 0]
+            self.__update_from_polar()
+
         return
-    
-    def __init__(self, r: float, theta: float) -> None:
+
+    @classmethod
+    def from_polar(cls, r: float, theta: float) -> Type['Vector']:
         '''
         Constructs a vector from polar coordinates (theta in radians)
         '''
-        self.magnitude = r
-        self.angle = theta
-        self.__update_from_polar()
-        return
+        return cls(polar=(r, theta))
+
+    @classmethod
+    def from_rectangular(cls, components: List[float]) -> Type['Vector']:
+        '''
+        Constructs a vector from rectangular coordinates
+        '''
+        return cls(components=components)
 
     def __update_from_components(self) -> None:
         if self.angle == 0:
@@ -70,17 +87,17 @@ class Vector:
             # hoping that numpy's trig can deal with -ve radians
             angle = self.angle * -1
         magnitude = abs(factor) * self.magnitude
-        return Vector(magnitude, angle)
+        return Vector.from_polar(magnitude, angle)
 
     def __add__(self, other):
         if len(self.components) != len(other.components):
             raise ValueError("Cannot add vectors of different dimensions")
-        return Vector([(self.components[i] + other.components[i]) for i in range(len(self.components))])
+        return Vector.from_rectangular([(self.components[i] + other.components[i]) for i in range(len(self.components))])
 
     def __sub__(self, other):
         if len(self.components) != len(other.components):
             raise ValueError("Cannot subtract vectors of different dimensions")
-        return Vector([(self.components[i] - other.components[i]) for i in range(len(self.components))])
+        return Vector.from_rectangular([(self.components[i] - other.components[i]) for i in range(len(self.components))])
 
 
 class Body:
@@ -102,9 +119,9 @@ class DynamicObstacle:
         if len(velocity) != len(initial_position):
             raise ValueError("Mismatched dimensions of position and velocity")
 
-        self.velocity = Vector(list(velocity))
+        self.velocity = Vector.from_rectangular(list(velocity))
         self.shape = shape
-        self.position = Vector(list(initial_position))
+        self.position = Vector.from_rectangular(list(initial_position))
         return
 
     def move(self, t: float):
