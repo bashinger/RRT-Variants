@@ -79,13 +79,11 @@ class Visualiser:
                 label="Path",
                 markersize=2.5
             )
-            # ax.plot(p[0], p[1], "y.", markersize=1, label="Waypoint")
 
     def _draw_points(self, ax, points, style, label=None):
         for point in points:
             ax.plot(point[0], point[1], style, markersize=5, label=label)
         if label:
-            # ax.legend(loc="upper left")
             ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
 
 class DynamicVisualiser:
