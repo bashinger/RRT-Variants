@@ -189,7 +189,6 @@ class Lazy_DT_RRT_Star:
         current_node.cost = last_final_node.cost + self.distance(last_final_node.position, self.map_env.goal)
         self.re_search_parent(current_node)
         # now, `current_node.parent` has our `final_node` (last excluding goal)
-        final_node = current_node.parent # to be returned
 
         # iterate back up the tree to find the best parent for each node
         while current_node.parent is not None:
