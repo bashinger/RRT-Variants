@@ -156,17 +156,22 @@ class Obstacle:
             # Calculate distance between centers
             dx = self.anchor_point.components[0] - other_obstacle.anchor_point.components[0]
             dy = self.anchor_point.components[1] - other_obstacle.anchor_point.components[1]
+            # TODO: optimize
             distance = (dx**2 + dy**2) ** 0.5
             return distance <= (self.shape.radius + other_obstacle.shape.radius)
 
         elif isinstance(self.shape, Rectangle) and isinstance(other_obstacle.shape, Rectangle):
             # Check for overlap
             return not (
+                # self is to the right of other
                 self.anchor_point.components[0]
                 >= other_obstacle.anchor_point.components[0] + other_obstacle.shape.width
+                # self is to the left of other
                 or self.anchor_point.components[0] + self.shape.width <= other_obstacle.anchor_point.components[0]
+                # self is below other
                 or self.anchor_point.components[1]
                 >= other_obstacle.anchor_point.components[1] + other_obstacle.shape.height
+                # self is above other
                 or self.anchor_point.components[1] + self.shape.height <= other_obstacle.anchor_point.components[1]
             )
 
@@ -237,6 +242,12 @@ class DynamicObstacle(Obstacle):
         """
         self.anchor_point += self.velocity.scale(t)
 
+    def ricochet(self):
+        """
+        Updates the velocity of the obstacle after a collision
+        """
+        self.velocity = self.velocity.scale(-1)
+
 
 class Layout:
     size: Tuple[int, int]
@@ -276,7 +287,11 @@ class LayoutBalloons(DynamicLayout):
             StaticObstacle(Rectangle(500, 1), (0, 499)),  # Map's Top border
             StaticObstacle(Rectangle(500, 1), (0, 0)),  # Map's Bottom border
         ]
-        self.dynamic_obstacles = [DynamicObstacle(Circle(10), (30, 210), (13, 3))]
+        self.dynamic_obstacles = [
+            DynamicObstacle(Circle(40), (30, 210), (40, -30)),
+            DynamicObstacle(Circle(20), (70, 30), (24, 63)),
+            DynamicObstacle(Circle(30), (100, 100), (50, 50)),
+        ]
         return
 
 
