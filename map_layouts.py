@@ -9,6 +9,7 @@ def layout_simple_cross():
         "size": (500, 500),
         "start": (10, 10),
         "end": (480, 480),
+        "name": "cross",
         "obstacles": [
             ((225, 100), (50, 300)),  # Vertical bar
             ((100, 225), (300, 50)),  # Horizontal bar
@@ -24,6 +25,7 @@ def layout_maze():
         "size": (500, 500),
         "start": (250, 50),
         "goal": (50, 450),
+        "name": "maze",
         "obstacles": [
             # Vertical segments
             ((200, 0), (10, 100)),
@@ -92,3 +94,18 @@ def layout_urban(size=(500, 500)):
         ((200, 250), (50, 100)),
     ]
     return size, obstacles
+
+def layout_narrow_pass():
+    layout = {
+        "size": (500, 500),
+        "start": (10, 10),
+        "end": (480, 480),
+        "name": "narrow_pass",
+        "obstacles": [
+            ((100, 0), (20, 490)),
+            ((130, 10), (20, 500)),
+            ((160, 0), (20, 245)),
+            ((160, 255), (20, 500)),
+        ],
+    }
+    return layout
