@@ -153,7 +153,9 @@ class Obstacle:
 
 
 class StaticObstacle(Obstacle):
-    pass
+    def __init__(self, shape: Body, initial_anchor_point: Tuple) -> None:
+        super().__init__(shape, Vector.from_rectangular(list(initial_anchor_point)))
+        return
 
 
 class DynamicObstacle(Obstacle):
