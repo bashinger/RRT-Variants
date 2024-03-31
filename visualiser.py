@@ -40,8 +40,8 @@ class Visualiser:
         self._draw_obstacles(ax)
         self._draw_tree(ax, nodes)
         self._draw_path(ax, path)
-        self._draw_points(ax, [self.start], "go", "Start")
-        self._draw_points(ax, [self.goal], "bo", "Goal")
+        self._draw_points(ax, [self.start], "g.", "Start")
+        self._draw_points(ax, [self.goal], "b.", "Goal")
         plt.show()
 
     def _setup_plot(self):
@@ -66,6 +66,7 @@ class Visualiser:
                     [node.position[0], node.parent.position[0]],
                     [node.position[1], node.parent.position[1]],
                     "r-",
+                    linewidth=0.4
                 )
 
     def _draw_path(self, ax, path):
@@ -73,14 +74,16 @@ class Visualiser:
             ax.plot(
                 [p[0] for p in path],
                 [p[1] for p in path],
-                "b-",
-                linewidth=2,
+                "-b.",
+                linewidth=0.8,
                 label="Path",
+                markersize=2.5
             )
+            # ax.plot(p[0], p[1], "y.", markersize=1, label="Waypoint")
 
     def _draw_points(self, ax, points, style, label=None):
         for point in points:
-            ax.plot(point[0], point[1], style, markersize=10, label=label)
+            ax.plot(point[0], point[1], style, markersize=5, label=label)
         if label:
             # ax.legend(loc="upper left")
             ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
