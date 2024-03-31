@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from map_environment import MapEnvironment
+from visualiser import Visualiser
 from rrt import RRT
 
 
@@ -11,7 +11,7 @@ class Node:
 
 
 class Lazy_DT_RRT_Star:
-    def __init__(self, map_env: MapEnvironment, step_size=5, neighbor_radius=20):
+    def __init__(self, map_env: Visualiser, step_size=5, neighbor_radius=20):
         self.map_env = map_env
         self.step_size = step_size
         self.neighbor_radius = neighbor_radius

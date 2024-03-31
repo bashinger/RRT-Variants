@@ -1,16 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-# MAP ENVIRONMENT CLASS
-# This class is used to visualize the map environment and the path found by the RRT algorithm.
-# size: (width, height) - DEFAULT (500, 500)
-# start: (x, y) - DEFAULT (10, 10)
-# goal: (x, y) - DEFAULT (480, 480)
-# Obstracles: ((Bottom-left corner's x, Bottom-left corner's y), (width, height)) - OPTIONAL
-# Layout: (size, [obstacles]) - OPTIONAL
-
-
-class MapEnvironment:
+class Visualiser:
     def __init__(
         self,
         layout=None,
@@ -93,3 +84,14 @@ class MapEnvironment:
         if label:
             # ax.legend(loc="upper left")
             ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
+
+class DynamicVisualiser:
+    '''
+    Self-updating visualiser that continuously shows a map env.
+    '''
+
+    update_freq_time: float
+    update_res: int
+
+    def __init__(self, freq: float, ) -> None:
+        raise NotImplementedError

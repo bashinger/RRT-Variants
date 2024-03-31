@@ -1,5 +1,5 @@
 import numpy as np
-from map_environment import MapEnvironment
+from visualiser import Visualiser
 
 
 class Node:
@@ -10,7 +10,7 @@ class Node:
 
 
 class Q_RRT_Star:
-    def __init__(self, map_env: MapEnvironment, step_size=5, neighbor_radius=20):
+    def __init__(self, map_env: Visualiser, step_size=5, neighbor_radius=20):
         self.map_env = map_env
         self.step_size = step_size
         self.neighbor_radius = neighbor_radius

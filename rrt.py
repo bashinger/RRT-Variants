@@ -3,7 +3,7 @@
 
 
 import numpy as np
-from map_environment import MapEnvironment
+from visualiser import Visualiser
 
 
 class Node:
@@ -14,7 +14,7 @@ class Node:
 
 
 class RRT:
-    def __init__(self, map_env: MapEnvironment, step_size=10):
+    def __init__(self, map_env: Visualiser, step_size=10):
         self.map_env = map_env
         self.step_size = step_size  # Maximum distance to extend the tree in each iteration
         self.nodes = [Node(map_env.start)]
