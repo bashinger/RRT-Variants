@@ -151,6 +151,68 @@ class Obstacle:
     def __repr__(self) -> str:
         return self.__str__()
 
+    def is_colliding(self, other_obstacle: "Obstacle") -> bool:
+        if isinstance(self.shape, Circle) and isinstance(other_obstacle.shape, Circle):
+            # Calculate distance between centers
+            dx = self.anchor_point.components[0] - other_obstacle.anchor_point.components[0]
+            dy = self.anchor_point.components[1] - other_obstacle.anchor_point.components[1]
+            distance = (dx**2 + dy**2) ** 0.5
+            return distance <= (self.shape.radius + other_obstacle.shape.radius)
+
+        elif isinstance(self.shape, Rectangle) and isinstance(other_obstacle.shape, Rectangle):
+            # Check for overlap
+            return not (
+                self.anchor_point.components[0]
+                >= other_obstacle.anchor_point.components[0] + other_obstacle.shape.width
+                or self.anchor_point.components[0] + self.shape.width <= other_obstacle.anchor_point.components[0]
+                or self.anchor_point.components[1]
+                >= other_obstacle.anchor_point.components[1] + other_obstacle.shape.height
+                or self.anchor_point.components[1] + self.shape.height <= other_obstacle.anchor_point.components[1]
+            )
+
+        elif (isinstance(self.shape, Circle) and isinstance(other_obstacle.shape, Rectangle)) or (
+            isinstance(self.shape, Rectangle) and isinstance(other_obstacle.shape, Circle)
+        ):
+            # Check for overlap
+            if isinstance(self.shape, Circle):
+                circle = self
+                rect = other_obstacle
+            else:
+                circle = other_obstacle
+                rect = self
+
+            ## Try this method(Copilot's) later (Commented out for now)
+            # # Find closest point on rectangle to circle
+            # closest_x = max(rect.anchor_point[0], min(circle.anchor_point[0], rect.anchor_point[0] + rect.shape.width))
+            # closest_y = max(rect.anchor_point[1], min(circle.anchor_point[1], rect.anchor_point[1] + rect.shape.height)
+
+            # # Calculate distance between closest point and circle center
+            # dx = circle.anchor_point[0] - closest_x
+            # dy = circle.anchor_point[1] - closest_y
+            # distance = (dx**2 + dy**2) ** 0.5
+            # return distance <= circle.shape.radius
+
+            ## Method inspired from https://stackoverflow.com/a/402010/13483425
+            # Calculate absolute distance between the circle's center and the rectangle's center
+            dx = abs(circle.anchor_point.components[0] - (rect.anchor_point.components[0] + rect.shape.width / 2))
+            dy = abs(circle.anchor_point.components[1] - (rect.anchor_point.components[1] + rect.shape.height / 2))
+
+            # Check if circle is too far from rectangle in either dimension for an intersection
+            if dx > (rect.shape.width / 2 + circle.shape.radius):
+                return False
+            if dy > (rect.shape.height / 2 + circle.shape.radius):
+                return False
+
+            if dx <= (rect.shape.width / 2):
+                return True
+            if dy <= (rect.shape.height / 2):
+                return True
+
+            # Check for intersection with rectangle corner
+            cornerDistance_sq = (dx - rect.shape.width / 2) ** 2 + (dy - rect.shape.height / 2) ** 2
+
+            return cornerDistance_sq <= (circle.shape.radius**2)
+
 
 class StaticObstacle(Obstacle):
     def __init__(self, shape: Body, initial_anchor_point: Tuple) -> None:
