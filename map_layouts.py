@@ -35,22 +35,33 @@ class Vector:
             # don't update the polar members until we need them
             pass
         return
+    
+    def __init__(self, r: float, theta: float) -> None:
+        '''
+        Constructs a vector from polar coordinates (theta in radians)
+        '''
+        self.magnitude = r
+        self.angle = theta
+        self.__update_from_polar()
+        return
 
-    def __update_from_components(self):
+    def __update_from_components(self) -> None:
         if self.angle == 0:
             self.magnitude = self.components[0]
         else:
             self.magnitude = sqrt((self.components[0])**2 + (self.components[1])**2)
             self.angle = tan(self.components[1]/self.components[0])
+        return
 
-    def __update_from_polar(self):
+    def __update_from_polar(self) -> None:
         if self.angle == 0:
             self.components[0] = self.magnitude
         else:
             self.components[0] = cos(self.angle) * self.magnitude
             self.components[1] = sin(self.angle) * self.magnitude
+        return
 
-    def scale(self, factor: float):
+    def scale(self, factor: float) -> Type['Vector']:
         '''
         Scale the vector by the given factor
         '''
@@ -58,10 +69,8 @@ class Vector:
         if factor < 0:
             # hoping that numpy's trig can deal with -ve radians
             angle = self.angle * -1
-        factor_magnitude = abs(factor)
-        magnitude = factor_magnitude * self.magnitude
-        self.__update_from_polar()
-        return
+        magnitude = abs(factor) * self.magnitude
+        return Vector(magnitude, angle)
 
     def __add__(self, other):
         if len(self.components) != len(other.components):
@@ -70,7 +79,7 @@ class Vector:
 
     def __sub__(self, other):
         if len(self.components) != len(other.components):
-            raise ValueError("Cannot add vectors of different dimensions")
+            raise ValueError("Cannot subtract vectors of different dimensions")
         return Vector([(self.components[i] - other.components[i]) for i in range(len(self.components))])
 
 
