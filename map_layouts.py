@@ -61,7 +61,7 @@ class Vector:
         return cls(components=components)
 
     def __update_from_components(self) -> None:
-        if self.angle == 0:
+        if len(self.components) == 1:
             self.magnitude = self.components[0]
         else:
             self.magnitude = sqrt((self.components[0]) ** 2 + (self.components[1]) ** 2)
@@ -81,9 +81,8 @@ class Vector:
         Scale the vector by the given factor
         """
         self.__update_from_components()
-        if factor < 0:
-            # hoping that numpy's trig can deal with -ve radians
-            angle = self.angle * -1
+        # hoping that numpy's trig can deal with -ve radians
+        angle = self.angle * -1 if factor < 0 else self.angle
         magnitude = abs(factor) * self.magnitude
         return Vector.from_polar(magnitude, angle)
 
