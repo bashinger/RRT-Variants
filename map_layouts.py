@@ -26,6 +26,7 @@ class Vector:
         Spatial components (up to 2) must be at the beginning of the list.
         A 1D vector will be assumed to have only an 'X' component
         """
+
         if (components is None and polar is None) or (components is not None and polar is not None):
             raise ValueError("Either components or polar coordinates must be provided")
         elif components is not None:

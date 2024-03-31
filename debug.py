@@ -1,7 +1,7 @@
-'''
+"""
 A debug kit for path planners in this project
 Lets you 'pause' the planner at any point in time and inspect its state
-'''
+"""
 
 # TODO: we need an abstract planner (implementing a `find_path` method)
 # this assumes it's called `RRT`
@@ -37,9 +37,9 @@ Lets you 'pause' the planner at any point in time and inspect its state
 # and prints the result to `stderr`
 
 wait_for_keypress_cmd: list[str]
-'''
+"""
 An OS-specific command that waits for a keypress (Windows/POSIX dependant)
-'''
+"""
 
 # Imports
 # ---===---
@@ -54,25 +54,25 @@ from multiprocessing import Process # matplotlib doesn't like being in a subthre
 # Definitions
 # ---===---
 class Interjektor(Thread):
-    '''
+    """
     A generic daemon thread that pauses another thread on keypress
-    '''
+    """
 
     __blocker: Popen | None
-    '''
+    """
     An OS-dependent subprocess that blocks until keypress
-    '''
+    """
 
     __must_exit: Event
-    '''
+    """
     An `Event` primitive that serves as a sign to terminate the thread,
     and is checked by the thread.
-    '''
+    """
 
     class _Harakiri(Exception):
-        '''
+        """
         An exception that is raised when the thread must terminate
-        '''
+        """
         pass
 
     def __init__(self, pause_condition: Condition, is_paused: bool, **kwargs): # planner: the RRT object
@@ -137,11 +137,11 @@ class Interjektor(Thread):
         return
 
 class Sauron(Interjektor):
-    '''
+    """
     A daemon thread that pauses a running planner on keypress,
     and lets one inspect its state.
     For internal use by `debug_planner` only
-    '''
+    """
 
     def __init__(self, planner, *args, **kwargs): # planner: the RRT object
         super().__init__(*args, **kwargs)
@@ -189,9 +189,9 @@ class Sauron(Interjektor):
         return
 
 def pauseable(func): # planner: RRT.find_path()
-    '''
+    """
     A decorator that pauses a (properly set up) function on keypress
-    '''
+    """
     is_paused: bool = False
     pause_condition = Condition()
     # blocker: Popen | None = None
@@ -210,9 +210,9 @@ def pauseable(func): # planner: RRT.find_path()
 
 
 def debug_planner(planner_func): # planner: RRT.find_path()
-    '''
+    """
     A decorator that pauses a planner on keypress, letting one inspect its state
-    '''
+    """
     is_paused: bool = False
     pause_condition = Condition()
     # blocker: Popen | None = None

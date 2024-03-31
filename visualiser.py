@@ -87,9 +87,9 @@ class Visualiser:
             ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
 
 class DynamicVisualiser:
-    '''
+    """
     Self-updating visualiser that continuously shows a map env.
-    '''
+    """
 
     update_freq_time: float
     update_res: int
