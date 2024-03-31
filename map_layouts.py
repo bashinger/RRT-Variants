@@ -127,15 +127,15 @@ class Rectangle(Body):
 
 class Obstacle:
     shape: Body
-    position: Vector
+    anchor_point: Vector
 
-    def __init__(self, shape: Body, initial_position: Vector) -> None:
+    def __init__(self, shape: Body, initial_anchor_point: Tuple) -> None:
         self.shape = shape
-        self.position = initial_position
+        self.anchor_point = initial_anchor_point
         return
 
     def __str__(self) -> str:
-        return f"Obstacle at {self.position} of shape {self.shape}"
+        return f"Obstacle at {self.anchor_point} of shape {self.shape}"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -144,19 +144,19 @@ class Obstacle:
 class DynamicObstacle(Obstacle):
     velocity: Vector
 
-    def __init__(self, shape: Body, initial_position: Tuple, velocity: Tuple) -> None:
-        if len(velocity) != len(initial_position):
+    def __init__(self, shape: Body, initial_anchor_point: Tuple, velocity: Tuple) -> None:
+        if len(velocity) != len(initial_anchor_point):
             raise ValueError("Mismatched dimensions of position and velocity")
 
-        super().__init__(shape, Vector.from_rectangular(list(initial_position)))
+        super().__init__(shape, Vector.from_rectangular(list(initial_anchor_point)))
         self.velocity = Vector.from_rectangular(list(velocity))
 
     def move(self, t: float):
         """
-        Updates the position of the obstacle by time `t`
+        Updates the anchor_point of the obstacle by time `t`
         with its inherent velocity
         """
-        self.position += self.velocity.scale(t)
+        self.anchor_point += self.velocity.scale(t)
 
 
 class Layout:
