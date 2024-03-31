@@ -1,6 +1,91 @@
 # Description: This file contains the layout of the maps for the path planning algorithms.
 # The layout of the maps is defined as a function that returns the size of the map and the obstacles.
+from typing import Tuple
 
+class Layout:
+    size: Tuple[int, int]
+    obstacles: list
+    start: Tuple[int, int]
+    end: Tuple[int, int]
+
+class LayoutSimpleCross(Layout):
+    def __init__(self):
+        self.size = (500, 500)
+        self.start = (10, 10)
+        self.end = (480, 480)
+        self.obstacles = [
+            ((225, 100), (50, 300)),  # Vertical bar
+            ((100, 225), (300, 50)),  # Horizontal bar
+        ]
+
+
+class LayoutMaze(Layout):
+    def __init__(self):
+        self.size = (500, 500)
+        self.start = (250, 50)
+        self.goal = (50, 450)
+        self.obstacles = [
+            # Vertical segments
+            ((200, 0), (10, 100)),
+            ((400, 0), (10, 200)),
+            ((100, 100), (10, 100)),
+            ((300, 200), (10, 100)),
+            ((200, 300), (10, 100)),
+            ((400, 300), (10, 100)),
+            # Horizontal segments
+            ((200, 100), (100, 10)),
+            ((100, 200), (310, 10)),
+            ((0, 300), (200, 10)),
+            ((100, 400), (310, 10)),
+        ]
+
+
+class LayoutCorridors(Layout):
+    def __init__(self):
+        self.size = (500, 500)
+        self.obstacles = [
+            ((0, 100), (450, 50)),  # Horizontal top
+            ((50, 350), (450, 50)),  # Horizontal bottom
+            ((100, 0), (50, 200)),  # Vertical left
+            ((350, 300), (50, 200)),  # Vertical right
+            ((200, 200), (100, 100)),  # Central block
+        ]
+
+
+class LayoutSpiral(Layout):
+    def __init__(self):
+        self.size = (500, 500)
+        self.obstacles = [
+            ((0, 0), (460, 20)),  # Outer top
+            ((0, 0), (20, 460)),  # Outer left
+            ((480, 0), (20, 460)),  # Outer right
+            ((0, 480), (460, 20)),  # Outer bottom
+            ((40, 40), (380, 20)),  # Inner top
+            ((40, 40), (20, 380)),  # Inner left
+            ((400, 40), (20, 380)),  # Inner right
+            ((40, 400), (380, 20)),  # Inner bottom
+            ((80, 80), (300, 20)),  # More inner top
+            ((80, 80), (20, 300)),  # More inner left
+            ((320, 80), (20, 300)),  # More inner right
+            ((80, 320), (300, 20)),  # More inner bottom
+        ]
+
+
+class LayoutUrban(Layout):
+    def __init__(self, size=(500, 500)):
+        self.size = size
+        self.obstacles = [
+            ((100, 100), (300, 50)),
+            ((100, 150), (50, 200)),
+            ((350, 150), (50, 200)),
+            ((150, 350), (200, 50)),
+            ((200, 200), (100, 50)),
+            ((200, 250), (50, 100)),
+        ]
+
+
+
+## OLD DEFNITIONS
 
 # The Cross - A simple cross-shaped environment
 # Testing basic navigation
