@@ -140,6 +140,10 @@ class Obstacle:
         return self.__str__()
 
 
+class StaticObstacle(Obstacle):
+    pass
+
+
 class DynamicObstacle(Obstacle):
     velocity: Vector
 
@@ -190,7 +194,7 @@ class DynamicLayout(Layout):
 class LayoutBalloons(DynamicLayout):
     def __init__(self) -> None:
         super().__init__()
-        self.obstacles = []
+        self.static_obstacles = []
         self.dynamic_obstacles = [DynamicObstacle(Circle(10), (30, 210), (13, 3))]
         return
 
