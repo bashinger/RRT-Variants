@@ -4,7 +4,7 @@
 from typing import Type, Tuple, List
 from time import time
 
-from numpy import cos, sin, sqrt, tan
+from numpy import cos, sin, sqrt, tan, pi
 
 
 class Vector:
@@ -41,6 +41,7 @@ class Vector:
                 pass
         elif polar is not None:
             self.magnitude, self.angle = polar
+            self.angle = self.angle % (2 * pi) # pull angles back into the 0-2pi range
             self.components = [0, 0]
             self.__update_from_polar()
 
@@ -82,7 +83,7 @@ class Vector:
         """
         self.__update_from_components()
         # hoping that numpy's trig can deal with -ve radians
-        angle = self.angle * -1 if factor < 0 else self.angle
+        angle = (self.angle + pi) if factor < 0 else self.angle
         magnitude = abs(factor) * self.magnitude
         return Vector.from_polar(magnitude, angle)
 
