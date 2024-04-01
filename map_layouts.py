@@ -101,6 +101,12 @@ class Vector:
             [(self.components[i] - other.components[i]) for i in range(len(self.components))]
         )
 
+    def __str__(self) -> str:
+        return f"Vector with components ({self.components[0]}, {self.components[1]}) and magnitude {self.magnitude} at angle {self.angle}"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 class Body:
     pass
@@ -147,7 +153,7 @@ class Obstacle:
         return
 
     def __str__(self) -> str:
-        return f"Obstacle: {self.shape} at ({self.anchor_point.components[0]},{self.anchor_point.components[1]})"
+        return f"Obstacle: {self.shape} with anchor_point: ({self.anchor_point})"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -235,6 +241,13 @@ class DynamicObstacle(Obstacle):
 
         super().__init__(shape, Vector.from_rectangular(list(initial_anchor_point)))
         self.velocity = Vector.from_rectangular(list(velocity))
+
+    def __str__(self) -> str:
+        return f"Obstacle: {self.shape} with anchor_point: ({self.anchor_point}) with velocity: ({self.velocity})"
+        return f"Obstacle: {self.shape} "
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
     def move(self, t: float):
         """
