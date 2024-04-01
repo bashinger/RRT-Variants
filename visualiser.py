@@ -172,6 +172,6 @@ class DynamicVisualiser:
                 obstacle.move(self.update_interval)
                 for other_obstacle in obstacles:
                     if obstacle != other_obstacle and obstacle.is_colliding(other_obstacle):
-                        obstacle.ricochet()
+                        obstacle.ricochet(other_obstacle)
                 actor.set(center=tuple(obstacle.anchor_point.components[:2]))
         return self.actors
