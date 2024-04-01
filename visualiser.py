@@ -5,7 +5,7 @@ import matplotlib.patches as patches
 import matplotlib.transforms as transforms
 from matplotlib.artist import Artist
 from matplotlib.animation import FuncAnimation
-from map_layouts import DynamicLayout, Circle
+from map_layouts import DynamicLayout, Circle, Obstacle
 from functools import partial
 from typing import Type
 
@@ -138,6 +138,10 @@ class DynamicVisualiser:
         self.ax.plot(*self.layout.end, "bo", markersize=5, label="Goal")
         self.ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
 
+        # initialise static obstacles
+        for obstacle in self.layout.static_obstacles:
+            self.ax.add_patch(patches.Rectangle(tuple(obstacle.anchor_point.components[:2]), obstacle.shape.width, obstacle.shape.height, linewidth=5, facecolor="black"))
+
         # initialise dynamic obstacles
         for obstacle in self.layout.dynamic_obstacles:
             if type(obstacle.shape) is Circle:
@@ -160,9 +164,14 @@ class DynamicVisualiser:
         """
         Update the positions of the obstacles.
         """
+
+        obstacles: list[Obstacle] = self.layout.dynamic_obstacles + self.layout.static_obstacles
         if len(self.layout.dynamic_obstacles) != len(self.actors):
             raise IndexError("Number of obstacles seems to have changed during simulation")
         for obstacle, actor in zip(self.layout.dynamic_obstacles, self.actors):
-            obstacle.move(self.update_interval)
-            actor.set(center=tuple(obstacle.anchor_point.components[:2]))
+                obstacle.move(self.update_interval)
+                for other_obstacle in obstacles:
+                    if obstacle != other_obstacle and obstacle.is_colliding(other_obstacle):
+                        obstacle.ricochet()
+                actor.set(center=tuple(obstacle.anchor_point.components[:2]))
         return self.actors
