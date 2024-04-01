@@ -226,6 +226,37 @@ class Obstacle:
 
             return cornerDistance_sq <= (circle.shape.radius**2)
 
+    def collision_axis(self, other_obstacle: "Obstacle") -> Tuple:
+        if (isinstance(self.shape, Circle) and isinstance(other_obstacle.shape, Rectangle)) or (
+            isinstance(self.shape, Rectangle) and isinstance(other_obstacle.shape, Circle)
+        ):
+            if isinstance(self.shape, Circle):
+                circle = self
+                rect = other_obstacle
+            else:
+                circle = other_obstacle
+                rect = self
+
+            # Find the Closest Point on the Rectangle to the Circle’s Center
+            closest_x = max(
+                rect.anchor_point.components[0],
+                min(circle.anchor_point.components[0], rect.anchor_point.components[0] + rect.shape.width),
+            )
+            closest_y = max(
+                rect.anchor_point.components[1],
+                min(circle.anchor_point.components[1], rect.anchor_point.components[1] + rect.shape.height),
+            )
+
+            # Calculate distances from the circle's center to the closest point
+            dx = abs(closest_x - circle.anchor_point.components[0])
+            dy = abs(closest_y - circle.anchor_point.components[1])
+
+            # Determine the axis of collision
+            if dx > dy:
+                return "horizontal"
+            else:
+                return "vertical"
+
 
 class StaticObstacle(Obstacle):
     def __init__(self, shape: Body, initial_anchor_point: Tuple) -> None:
@@ -257,11 +288,35 @@ class DynamicObstacle(Obstacle):
         """
         self.anchor_point += self.velocity.scale(t)
 
-    def ricochet(self):
+    def ricochet(self, other_obstacle: Obstacle) -> None:
         """
-        Updates the velocity of the obstacle after a collision
+        Updates the velocity of the obstacle pair after a collision
         """
-        self.velocity = self.velocity.scale(-1)
+        # For circle-circle collisions, directly swap velocity vectors
+        if isinstance(self.shape, Circle) and isinstance(other_obstacle.shape, Circle):
+            self.velocity, other_obstacle.velocity = other_obstacle.velocity, self.velocity
+            return
+
+        # For circle-rectangle collisions, reverse the velocity of the obstacle along the axis of collision
+        if (isinstance(self.shape, Circle) and isinstance(other_obstacle.shape, Rectangle)) or (
+            isinstance(self.shape, Rectangle) and isinstance(other_obstacle.shape, Circle)
+        ):
+
+            axis = self.collision_axis(other_obstacle)
+
+            if isinstance(self.shape, Circle):
+                circle = self
+                rect = other_obstacle
+            else:
+                circle = other_obstacle
+                rect = self
+
+            if axis == "horizontal":
+                circle.velocity.components[0] *= -1
+                # rect.velocity.components[0] *= -1
+            elif axis == "vertical":
+                circle.velocity.components[1] *= -1
+                # rect.velocity.components[1] *= -1
 
 
 class Layout:
