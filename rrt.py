@@ -18,7 +18,7 @@ class RRT:
         self.map_env = map_env
         self.step_size = step_size  # Maximum distance to extend the tree in each iteration
         self.nodes = [Node(map_env.start)]
-        self.nodes[0].cost = 0 # Cost to reach the start node is 0
+        self.nodes[0].cost = 0  # Cost to reach the start node is 0
 
     def distance(self, a, b):
         return np.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)

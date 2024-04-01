@@ -5,7 +5,7 @@ Lets you 'pause' the planner at any point in time and inspect its state
 
 # TODO: we need an abstract planner (implementing a `find_path` method)
 # this assumes it's called `RRT`
-#from rrt import RRT
+# from rrt import RRT
 
 # Summary
 # ---===---
@@ -49,7 +49,8 @@ from time import process_time_ns
 from platform import system
 from threading import Thread, Condition, Event
 from subprocess import Popen, DEVNULL
-from multiprocessing import Process # matplotlib doesn't like being in a subthread
+from multiprocessing import Process  # matplotlib doesn't like being in a subthread
+
 
 # Definitions
 # ---===---
@@ -73,9 +74,10 @@ class Interjektor(Thread):
         """
         An exception that is raised when the thread must terminate
         """
+
         pass
 
-    def __init__(self, pause_condition: Condition, is_paused: bool, **kwargs): # planner: the RRT object
+    def __init__(self, pause_condition: Condition, is_paused: bool, **kwargs):  # planner: the RRT object
         super().__init__(daemon=True, **kwargs)
         self.__blocker = None
         self.__must_exit = Event()
@@ -123,7 +125,7 @@ class Interjektor(Thread):
         # TODO: handle the latter specially (e.g. terminate)
         print("Pausing...", file=stderr)
         self.is_paused = True
-        self.pause_condition.acquire(blocking=True) # wait for consistent state
+        self.pause_condition.acquire(blocking=True)  # wait for consistent state
         return
 
     def _resume_on_keypress(self):
@@ -136,6 +138,7 @@ class Interjektor(Thread):
         self.pause_condition.release()
         return
 
+
 class Sauron(Interjektor):
     """
     A daemon thread that pauses a running planner on keypress,
@@ -143,7 +146,7 @@ class Sauron(Interjektor):
     For internal use by `debug_planner` only
     """
 
-    def __init__(self, planner, *args, **kwargs): # planner: the RRT object
+    def __init__(self, planner, *args, **kwargs):  # planner: the RRT object
         super().__init__(*args, **kwargs)
         self.planner = planner
         return
@@ -166,18 +169,14 @@ class Sauron(Interjektor):
             goal = self.planner.map_env.goal
             print(
                 "Current minimum distance to node: ",
-                self.planner.distance(
-                    self.planner.nearest_node(goal).position, goal
-                ),
-                file=stderr
+                self.planner.distance(self.planner.nearest_node(goal).position, goal),
+                file=stderr,
             )
 
             # draw the current state
             sauron = Process(
                 target=self.planner.map_env.visualize_path,
-                args=(
-                    self.planner.nodes, self.planner._trace_path(self.planner.nodes[-1])
-                )
+                args=(self.planner.nodes, self.planner._trace_path(self.planner.nodes[-1])),
             )
             sauron.start()
             sauron.join()
@@ -188,7 +187,8 @@ class Sauron(Interjektor):
             self._resume_on_keypress()
         return
 
-def pauseable(func): # planner: RRT.find_path()
+
+def pauseable(func):  # planner: RRT.find_path()
     """
     A decorator that pauses a (properly set up) function on keypress
     """
@@ -196,7 +196,7 @@ def pauseable(func): # planner: RRT.find_path()
     pause_condition = Condition()
     # blocker: Popen | None = None
 
-    def wrapper(*args, **kwargs):     # planner_self_obj: an RRT (abstract)
+    def wrapper(*args, **kwargs):  # planner_self_obj: an RRT (abstract)
         pauser_daemon = Interjektor(pause_condition, is_paused)
         pauser_daemon.start()
         result = func(*args, **kwargs)
@@ -209,7 +209,7 @@ def pauseable(func): # planner: RRT.find_path()
     return wrapper
 
 
-def debug_planner(planner_func): # planner: RRT.find_path()
+def debug_planner(planner_func):  # planner: RRT.find_path()
     """
     A decorator that pauses a planner on keypress, letting one inspect its state
     """
@@ -217,7 +217,7 @@ def debug_planner(planner_func): # planner: RRT.find_path()
     pause_condition = Condition()
     # blocker: Popen | None = None
 
-    def wrapper(planner_self_obj, *args, **kwargs):     # planner_self_obj: an RRT (abstract)
+    def wrapper(planner_self_obj, *args, **kwargs):  # planner_self_obj: an RRT (abstract)
         pauser_daemon = Sauron(planner_self_obj, pause_condition, is_paused)
         pauser_daemon.start()
         result = planner_func(planner_self_obj, *args, **kwargs)
@@ -229,6 +229,7 @@ def debug_planner(planner_func): # planner: RRT.find_path()
     wrapper.pause_condition = pause_condition
     return wrapper
 
+
 def proc_time(func):
     def wrapper(*args, **kwargs):
         start_time = process_time_ns()
@@ -239,12 +240,14 @@ def proc_time(func):
         signature = ", ".join(args_str + kwargs_str)
         print(f"DEBUG: {func.__name__}({signature}) took {float(end_time - start_time)/10e3:,.3g} µs", file=stderr)
         return result
+
     return wrapper
+
 
 # Other Definitions
 # ---===---
 # OS-specific shenanigans
 if system() == "Windows":
-    wait_for_keypress_cmd = ['@pause']
+    wait_for_keypress_cmd = ["@pause"]
 else:
-    wait_for_keypress_cmd = ['/bin/bash', '-c', 'read -s -n 1']
+    wait_for_keypress_cmd = ["/bin/bash", "-c", "read -s -n 1"]

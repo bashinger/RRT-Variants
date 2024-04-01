@@ -4,6 +4,7 @@ from visualiser import Visualiser
 from rrt import RRT
 from debug import debug_planner, proc_time
 
+
 class Node:
     def __init__(self, position, parent=None):
         self.position = position  # Node Position (x coordinate, y coordinate)
@@ -217,7 +218,9 @@ class DT_RRT_Star:
             if self.distance(current_node.position, current_node.parent.position) > self.step_size:
                 new_position = self.step_from_to(current_node.position, current_node.parent.position)
                 new_node = Node(new_position, current_node.parent)
-                new_node.cost = current_node.parent.cost + self.distance(new_node.position, current_node.parent.position)
+                new_node.cost = current_node.parent.cost + self.distance(
+                    new_node.position, current_node.parent.position
+                )
                 current_node.parent = new_node
             current_node = current_node.parent
 

@@ -9,6 +9,7 @@ from map_layouts import DynamicLayout, Circle, Obstacle
 from functools import partial
 from typing import Type
 
+
 class Visualiser:
     def __init__(
         self,
@@ -74,25 +75,19 @@ class Visualiser:
                     [node.position[0], node.parent.position[0]],
                     [node.position[1], node.parent.position[1]],
                     "r-",
-                    linewidth=0.4
+                    linewidth=0.4,
                 )
 
     def _draw_path(self, ax, path):
         if path:
-            ax.plot(
-                [p[0] for p in path],
-                [p[1] for p in path],
-                "-b.",
-                linewidth=0.8,
-                label="Path",
-                markersize=2.5
-            )
+            ax.plot([p[0] for p in path], [p[1] for p in path], "-b.", linewidth=0.8, label="Path", markersize=2.5)
 
     def _draw_points(self, ax, points, style, label=None):
         for point in points:
             ax.plot(point[0], point[1], style, markersize=5, label=label)
         if label:
             ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
+
 
 class DynamicVisualiser:
     """
@@ -140,12 +135,22 @@ class DynamicVisualiser:
 
         # initialise static obstacles
         for obstacle in self.layout.static_obstacles:
-            self.ax.add_patch(patches.Rectangle(tuple(obstacle.anchor_point.components[:2]), obstacle.shape.width, obstacle.shape.height, linewidth=5, facecolor="black"))
+            self.ax.add_patch(
+                patches.Rectangle(
+                    tuple(obstacle.anchor_point.components[:2]),
+                    obstacle.shape.width,
+                    obstacle.shape.height,
+                    linewidth=5,
+                    facecolor="black",
+                )
+            )
 
         # initialise dynamic obstacles
         for obstacle in self.layout.dynamic_obstacles:
             if type(obstacle.shape) is Circle:
-                actor = patches.Circle(tuple(obstacle.anchor_point.components[:2]), obstacle.shape.radius, linewidth=1, facecolor="red")
+                actor = patches.Circle(
+                    tuple(obstacle.anchor_point.components[:2]), obstacle.shape.radius, linewidth=1, facecolor="red"
+                )
                 print(f"adding obstacle: {tuple(obstacle.anchor_point.components[:2])}")
                 actor.set_animated(True)
                 self.ax.add_patch(actor)
@@ -154,8 +159,7 @@ class DynamicVisualiser:
         # blit is an optimistic graphics optimisation (not available on all platforms)
         # no harm if unavailable
         self.anim = FuncAnimation(
-            self.fig, func=self.update, interval=self.render_freq, blit=True,
-            cache_frame_data=True, save_count=50
+            self.fig, func=self.update, interval=self.render_freq, blit=True, cache_frame_data=True, save_count=50
         )
         plt.show()
         return
@@ -169,9 +173,9 @@ class DynamicVisualiser:
         if len(self.layout.dynamic_obstacles) != len(self.actors):
             raise IndexError("Number of obstacles seems to have changed during simulation")
         for obstacle, actor in zip(self.layout.dynamic_obstacles, self.actors):
-                obstacle.move(self.update_interval)
-                for other_obstacle in obstacles:
-                    if obstacle != other_obstacle and obstacle.is_colliding(other_obstacle):
-                        obstacle.ricochet(other_obstacle)
-                actor.set(center=tuple(obstacle.anchor_point.components[:2]))
+            obstacle.move(self.update_interval)
+            for other_obstacle in obstacles:
+                if obstacle != other_obstacle and obstacle.is_colliding(other_obstacle):
+                    obstacle.ricochet(other_obstacle)
+            actor.set(center=tuple(obstacle.anchor_point.components[:2]))
         return self.actors
