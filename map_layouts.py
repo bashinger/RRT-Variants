@@ -147,6 +147,7 @@ class Rectangle(Body):
 class Obstacle:
     shape: Body
     anchor_point: Vector
+    current_invaders: set["Obstacle"]
 
     def __init__(self, shape: Body, initial_anchor_point: Tuple) -> None:
         self.shape = shape
@@ -158,6 +159,11 @@ class Obstacle:
 
     def __repr__(self) -> str:
         return self.__str__()
+
+    def is_new_collision(self, other_obstacle: "Obstacle") -> bool:
+        result: bool = self.is_colliding(other_obstacle) and other_obstacle not in self.current_invaders
+        self.current_invaders.add(other_obstacle) if result else None
+        return result
 
     def is_colliding(self, other_obstacle: "Obstacle") -> bool:
         if isinstance(self.shape, Circle) and isinstance(other_obstacle.shape, Circle):
