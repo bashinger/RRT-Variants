@@ -1,7 +1,6 @@
 # Description: This file contains the layout of the maps for the path planning algorithms.
 # The layout of the maps is defined as a function that returns the size of the map and the obstacles.
 
-from Shapes import Circle, Rectangle
 from Obstacle import DynamicObstacle, StaticObstacle
 from Layout import DynamicLayout
 
@@ -15,19 +14,19 @@ class LayoutBalloons(DynamicLayout):
     def __init__(self) -> None:
         super().__init__()
         self.static_obstacles = [
-            StaticObstacle(Rectangle(5, 490), (5, 5)),  # Map's Left border
-            StaticObstacle(Rectangle(5, 495), (490, 5)),  # Map's Right border
-            StaticObstacle(Rectangle(495, 5), (5, 490)),  # Map's Top border
-            StaticObstacle(Rectangle(495, 5), (5, 5)),  # Map's Bottom border
+            StaticObstacle("rectangle", (5, 490), (5, 5)),  # Map's Left border
+            StaticObstacle("rectangle", (5, 495), (490, 5)),  # Map's Right border
+            StaticObstacle("rectangle", (495, 5), (5, 490)),  # Map's Top border
+            StaticObstacle("rectangle", (495, 5), (5, 5)),  # Map's Bottom border
         ]
         self.dynamic_obstacles = [
-            DynamicObstacle(Circle(40), (60, 210), (600, -360)),
-            DynamicObstacle(Circle(20), (70, 60), (300, -663)),
-            DynamicObstacle(Circle(30), (100, 100), (721, 223)),
-            DynamicObstacle(Circle(30), (200, 150), (125, 664)),
-            DynamicObstacle(Circle(30), (350, 400), (935, -95)),
-            DynamicObstacle(Circle(30), (100, 380), (1041, 145)),
-            DynamicObstacle(Circle(30), (170, 420), (253, -883)),
+            DynamicObstacle("circle", (40,), (60, 210), (600, -360)),
+            DynamicObstacle("circle", (20,), (70, 60), (300, -663)),
+            DynamicObstacle("circle", (30,), (100, 100), (721, 223)),
+            DynamicObstacle("circle", (30,), (200, 150), (125, 664)),
+            DynamicObstacle("circle", (30,), (350, 400), (935, -95)),
+            DynamicObstacle("circle", (30,), (100, 380), (1041, 145)),
+            DynamicObstacle("circle", (30,), (170, 420), (253, -883)),
         ]
         return
 

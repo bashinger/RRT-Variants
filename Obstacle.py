@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Iterable, Tuple
 
 from Vector import Vector
 from Shapes import Body, Circle, Rectangle
@@ -9,8 +9,27 @@ class Obstacle:
     anchor_point: Vector
     current_invaders: set["Obstacle"]
 
-    def __init__(self, shape: Body, initial_anchor_point: Tuple) -> None:
-        self.shape = shape
+    def __init__(self, shape: str, shape_args: Tuple, initial_anchor_point: Tuple) -> None:
+
+        # print type of shape_args
+        print(type(shape_args))
+
+        if shape not in ["circle", "rectangle"]:
+            raise ValueError("Invalid shape provided. Must be 'circle' or 'rectangle'")
+
+        if shape == "circle":
+            if not isinstance(shape_args, Iterable):
+                raise ValueError("Arguments for Circle is not an Iterable")
+            if len(shape_args) != 1:
+                raise ValueError("Invalid number of arguments for Circle")
+            self.shape = Circle(shape_args[0])
+        elif shape == "rectangle":
+            if not isinstance(shape_args, Iterable):
+                raise ValueError("Arguments for Rectangle is not an Iterable")
+            if len(shape_args) != 2:
+                raise ValueError("Invalid number of arguments for Rectangle")
+            self.shape = Rectangle(*shape_args)
+
         self.anchor_point = initial_anchor_point
         return
 
@@ -125,8 +144,8 @@ class Obstacle:
 
 
 class StaticObstacle(Obstacle):
-    def __init__(self, shape: Body, initial_anchor_point: Tuple) -> None:
-        super().__init__(shape, Vector.from_rectangular(list(initial_anchor_point)))
+    def __init__(self, shape: str, shape_args: Tuple, initial_anchor_point: Tuple) -> None:
+        super().__init__(shape, shape_args, Vector.from_rectangular(list(initial_anchor_point)))
         return
 
     def __str__(self) -> str:
@@ -139,11 +158,11 @@ class StaticObstacle(Obstacle):
 class DynamicObstacle(Obstacle):
     velocity: Vector
 
-    def __init__(self, shape: Body, initial_anchor_point: Tuple, velocity: Tuple) -> None:
+    def __init__(self, shape: str, shape_args: Tuple, initial_anchor_point: Tuple, velocity: Tuple) -> None:
         if len(velocity) != len(initial_anchor_point):
             raise ValueError("Mismatched dimensions of position and velocity")
 
-        super().__init__(shape, Vector.from_rectangular(list(initial_anchor_point)))
+        super().__init__(shape, shape_args, Vector.from_rectangular(list(initial_anchor_point)))
         self.velocity = Vector.from_rectangular(list(velocity))
 
     def __str__(self) -> str:
