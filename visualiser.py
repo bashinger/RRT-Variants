@@ -133,26 +133,33 @@ class DynamicVisualiser:
 
         # initialise static obstacles
         for obstacle in self.layout.static_obstacles:
-            self.ax.add_patch(
-                patches.Rectangle(
-                    tuple(obstacle.anchor_point.components[:2]),
-                    obstacle.shape.width,
-                    obstacle.shape.height,
-                    linewidth=5,
-                    facecolor="black",
+            try:
+                patch_type = getattr(patches, obstacle.shape.__class__.__name__)
+                shape_args = obstacle.shape.get_attrs()
+                self.ax.add_patch(
+                    patch_type(
+                        tuple(obstacle.anchor_point.components[:2]),
+                        *shape_args,
+                        linewidth=5,
+                        facecolor="black",
+                    )
                 )
-            )
+            except AttributeError:
+                raise ValueError(f"Shape unsupported by `matplotlib`: {obstacle.shape.__class__.__name__}")
 
         # initialise dynamic obstacles
         for obstacle in self.layout.dynamic_obstacles:
-            if type(obstacle.shape) is Circle:
-                actor = patches.Circle(
-                    tuple(obstacle.anchor_point.components[:2]), obstacle.shape.radius, linewidth=1, facecolor="red"
+            try:
+                patch_type = getattr(patches, obstacle.shape.__class__.__name__)
+                shape_args = obstacle.shape.get_attrs()
+                actor = patch_type(
+                    tuple(obstacle.anchor_point.components[:2]), *shape_args, linewidth=1, facecolor="red"
                 )
-                print(f"adding obstacle: {tuple(obstacle.anchor_point.components[:2])}")
                 actor.set_animated(True)
                 self.ax.add_patch(actor)
                 self.actors.append(actor)
+            except AttributeError:
+                raise ValueError(f"Shape unsupported by `matplotlib`: {obstacle.shape.__class__.__name__}")
 
         # blit is an optimistic graphics optimisation (not available on all platforms)
         # no harm if unavailable

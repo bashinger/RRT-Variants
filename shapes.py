@@ -1,5 +1,14 @@
+"""
+Geometric shapes that can be used as obstacles.
+N.B.:
+    - Must closely follow `matplotlib.patches` API.
+    - Must have all of, and only the attributes of corresponding `matplotlib.patches`.
+"""
+
+
 class Body:
-    pass
+    def get_attrs(self) -> list:
+        return [value for value in self.__dict__.values() if not callable(value)]
 
 
 class Circle(Body):
