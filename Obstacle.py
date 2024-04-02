@@ -1,4 +1,4 @@
-from typing import Type, Iterable, Tuple
+from typing import Type, Tuple
 
 from Vector import Vector
 from Shapes import Body, Circle, Rectangle
@@ -7,7 +7,6 @@ from Shapes import Body, Circle, Rectangle
 class Obstacle:
     shape: Body
     anchor_point: Vector
-    current_invaders: set["Obstacle"]
 
     def __init__(self, initial_anchor_point: Tuple, shape: Type[Body], shape_args: Tuple) -> None:
         self.shape = shape(*shape_args)
@@ -19,11 +18,6 @@ class Obstacle:
 
     def __repr__(self) -> str:
         return self.__str__()
-
-    def is_new_collision(self, other_obstacle: "Obstacle") -> bool:
-        result: bool = self.is_colliding(other_obstacle) and other_obstacle not in self.current_invaders
-        self.current_invaders.add(other_obstacle) if result else None
-        return result
 
     def is_colliding(self, other_obstacle: "Obstacle") -> bool:
         if isinstance(self.shape, Circle) and isinstance(other_obstacle.shape, Circle):
@@ -134,6 +128,7 @@ class StaticObstacle(Obstacle):
 
 class DynamicObstacle(Obstacle):
     velocity: Vector
+    ongoing_collisions: set["Obstacle"]
 
     def __init__(self, initial_anchor_point: Tuple, velocity: Tuple, *args, **kwargs) -> None:
         if len(velocity) != len(initial_anchor_point):
@@ -141,6 +136,7 @@ class DynamicObstacle(Obstacle):
 
         super().__init__(initial_anchor_point, *args, **kwargs)
         self.velocity = Vector.from_rectangular(list(velocity))
+        self.ongoing_collisions = set()
 
     def __str__(self) -> str:
         return f"Dynamic Obstacle → {super().__str__()}, Velocity {self.velocity}"
@@ -159,7 +155,6 @@ class DynamicObstacle(Obstacle):
         """
         Updates the velocity of the obstacle pair after a collision
         """
-        print(f"Ricochet: {self} and {other_obstacle}")
         # For circle-circle collisions, directly swap velocity vectors
         if isinstance(self.shape, Circle) and isinstance(other_obstacle.shape, Circle):
             self.velocity, other_obstacle.velocity = other_obstacle.velocity, self.velocity
@@ -185,3 +180,12 @@ class DynamicObstacle(Obstacle):
             elif axis == "vertical":
                 circle.velocity.components[1] *= -1
                 # rect.velocity.components[1] *= -1
+
+    def is_new_collision(self, other_obstacle: "Obstacle") -> bool:
+        collide_status: bool = self.is_colliding(other_obstacle)
+        result: bool = collide_status and other_obstacle not in self.ongoing_collisions
+        if result:
+            self.ongoing_collisions.add(other_obstacle)
+        elif not collide_status and other_obstacle in self.ongoing_collisions:
+            self.ongoing_collisions.remove(other_obstacle)
+        return result
