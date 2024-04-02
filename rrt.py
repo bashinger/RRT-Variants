@@ -2,72 +2,60 @@
 # 1. Use Deque to sure nodes in the path in the function _trace_path
 
 
+from threading import Thread
+from time import sleep
+from typing import Tuple
 import numpy as np
-from visualiser import Visualiser
-
-
-class Node:
-    def __init__(self, position, parent=None):
-        self.position = position  # Node Position (x coordinate, y coordinate)
-        self.parent = parent  # Reference to the parent node
-        self.cost = float("inf")  # Cost to reach this node
+from map import Map
+from node import Node
 
 
 class RRT:
-    def __init__(self, map_env: Visualiser, step_size=10):
-        self.map_env = map_env
+    """
+    An implementation of the original *Rapidly-exploring Random Tree*
+    algorithm (Steven M. LaValle, 1998).
+    """
+
+    map: Map
+    step_size: int
+
+    def __init__(self, map: Map, step_size=10) -> None:
+        self.map = map
         self.step_size = step_size  # Maximum distance to extend the tree in each iteration
-        self.nodes = [Node(map_env.start)]
-        self.nodes[0].cost = 0  # Cost to reach the start node is 0
 
-    def distance(self, a, b):
-        return np.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
-
-    def is_collision_free(self, node):
-        for obstacle_anchor_point, size in self.map_env.obstacles:
-            if (
-                # Node's X coordinate is between the obstacle's left and right edges
-                obstacle_anchor_point[0] <= node.position[0] <= obstacle_anchor_point[0] + size[0]
-                # Node's Y coordinate is between the obstacle's top and bottom edges
-                and obstacle_anchor_point[1] <= node.position[1] <= obstacle_anchor_point[1] + size[1]
-            ):
-                return False
-        return True
-
-    def nearest_node(self, n):
-        return min(self.nodes, key=lambda node: self.distance(node.position, n.position))
-
-    def step_from_to(self, n1, n2):
-        if self.distance(n1, n2) < self.step_size:
-            return n2
+    def step_from_to(self, n1: Node, n2: Node) -> Tuple[float, float]:
+        diff = n2.position - n1.position
+        dist = diff.magnitude
+        if dist < self.step_size:
+            return tuple(n2.position.components[:2])
         else:
-            # Theta is the angle between the two points according to the x-axis
-            theta = np.arctan2(n2[1] - n1[1], n2[0] - n1[0])
-            return n1[0] + self.step_size * np.cos(theta), n1[1] + self.step_size * np.sin(theta)
+            diff = diff.scale(float(self.step_size) / dist)
+            print("step_from_to magnitude returned: ", diff.magnitude)
+            return tuple((n1.position + diff).components[:2])
 
     def find_path(self):
-        while True:
-            random_node = Node(
-                (
-                    np.random.randint(0, self.map_env.size[0]),
-                    np.random.randint(0, self.map_env.size[1]),
-                )
+        found = False
+        while not found:
+            found = self.seek_new_candidate()
+
+
+    def seek_new_candidate(self):
+        random_node = Node(
+            (
+                np.random.randint(0, self.map.size[0]),
+                np.random.randint(0, self.map.size[1]),
             )
-            nearest = self.nearest_node(random_node)
-            new_position = self.step_from_to(nearest.position, random_node.position)
-            new_node = Node(new_position, nearest)
+        )
+        nearest = self.map.nearest_node(random_node)
+        new_position = self.step_from_to(nearest, random_node)
+        new_node = Node(new_position, parent=nearest)
+        # print(new_node)
 
-            if self.is_collision_free(new_node):
-                new_node.cost = nearest.cost + self.distance(nearest.position, new_node.position)
-                self.nodes.append(new_node)
-                if self.distance(new_node.position, self.map_env.goal) <= self.step_size:
-                    return new_node, self._trace_path(new_node)
-
-    def _trace_path(self, final_node):
-        path = []
-        current_node = final_node
-        while current_node is not None:
-            path.append(current_node.position)
-            current_node = current_node.parent
-        path.reverse()  # Reverse the path to start from the beginning
-        return path
+        if not self.map.is_colliding(new_node):
+            new_node.cost = nearest.cost + nearest.distance(new_node)
+            self.map.nodes.append(new_node)
+            if new_node.distance(self.map.end) <= self.step_size:
+                self.map.end.parent = new_node
+                self.map.best_path = self.map.invert(new_node)
+                return True
+        return False

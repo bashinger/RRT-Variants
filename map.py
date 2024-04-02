@@ -26,6 +26,7 @@ class Map(Layout):
 
     __type: Type[Layout]
     nodes: List[Node]
+    best_path: List[Node] | None
 
     def __init__(self, layout: Layout) -> None:
         # super().__init__(layout.size, layout.start.position, layout.end.position, layout.static_obstacles, layout.dynamic_obstacles)
@@ -36,6 +37,7 @@ class Map(Layout):
 
         self.__type = type(layout)
         self.nodes = [self.start]
+        self.best_path = None
         return
 
     def __str__(self) -> str:
@@ -71,8 +73,29 @@ class Map(Layout):
                     obstacle.ricochet(other_obstacle)
         return
 
+    def is_colliding(self, node: Node) -> bool:
+        """
+        Check if a node is colliding with any *STATIC* obstacles
+        """
+        for obstacle in self.static_obstacles:
+            if node.is_colliding(obstacle):
+                return True
+        return False
+
     def nearest_node(self, node: Node) -> Node:
         """
         Find the nearest existing node on the map to a given node
         """
         return min(self.nodes, key=lambda x: x.distance(node))
+
+    def invert(self, final_node):
+        """
+        A function that recurses back up the tree of nodes, building a path to the final node
+        """
+        path = []
+        current_node = final_node
+        while current_node is not None:
+            path.append(current_node)
+            current_node = current_node.parent
+        path.reverse()  # Reverse the path to start from the beginning
+        return path
