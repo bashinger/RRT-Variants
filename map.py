@@ -13,6 +13,8 @@ from layout import Layout
 from node import Node
 from copy import deepcopy
 
+from obstacle import Obstacle
+
 ## Definitions
 # ---===---
 
@@ -61,9 +63,10 @@ class Map(Layout):
         """
 
         # update the dynamic obstacles
+        obstacles: List[Obstacle] = [*self.static_obstacles, *self.dynamic_obstacles]
         for obstacle in self.dynamic_obstacles:
             obstacle.move(t)
-            for other_obstacle in [*self.static_obstacles, *self.dynamic_obstacles]:
+            for other_obstacle in obstacles:
                 if obstacle != other_obstacle and obstacle.is_new_collision(other_obstacle):
                     obstacle.ricochet(other_obstacle)
         return

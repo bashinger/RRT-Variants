@@ -3,7 +3,7 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 import matplotlib.patches as patches
 from matplotlib.animation import FuncAnimation
-from layout import Layout
+from map import Map
 from shapes import Circle
 from obstacle import Obstacle
 
@@ -103,11 +103,11 @@ class DynamicVisualiser:
 
     fig: Figure
     ax: Axes
-    layout: Layout
+    map: Map
     anim: FuncAnimation
     actors: list[patches.Patch]
 
-    def __init__(self, render_freq: int, layout: Layout) -> None:
+    def __init__(self, render_freq: int, map: Map) -> None:
         """
         Parameters:
         ----------
@@ -116,23 +116,23 @@ class DynamicVisualiser:
         - `layout`: Type[DynamicLayout]
             The layout of the map.
         """
-        self.layout = layout
+        self.map = map
         self.render_freq = render_freq
         self.update_interval = render_freq / 10e3
         self.fig, self.ax = plt.subplots()
         self.actors = []
 
         # set up plot
-        self.ax.set_xlim(0, self.layout.size[0])
-        self.ax.set_ylim(0, self.layout.size[1])
+        self.ax.set_xlim(0, self.map.size[0])
+        self.ax.set_ylim(0, self.map.size[1])
         self.ax.set_aspect("equal")
         self.ax.set_title("Map Environment")
-        self.ax.plot(*self.layout.start, "go", markersize=5, label="Start")
-        self.ax.plot(*self.layout.end, "bo", markersize=5, label="Goal")
+        self.ax.plot(*self.map.start.position.components[:2], "go", markersize=5, label="Start")
+        self.ax.plot(*self.map.end.position.components[:2], "bo", markersize=5, label="Goal")
         self.ax.legend(loc="upper left", bbox_to_anchor=(1, 1))
 
         # initialise static obstacles
-        for obstacle in self.layout.static_obstacles:
+        for obstacle in self.map.static_obstacles:
             try:
                 patch_type = getattr(patches, obstacle.shape.__class__.__name__)
                 shape_args = obstacle.shape.get_attrs()
@@ -148,7 +148,7 @@ class DynamicVisualiser:
                 raise ValueError(f"Shape unsupported by `matplotlib`: {obstacle.shape.__class__.__name__}")
 
         # initialise dynamic obstacles
-        for obstacle in self.layout.dynamic_obstacles:
+        for obstacle in self.map.dynamic_obstacles:
             try:
                 patch_type = getattr(patches, obstacle.shape.__class__.__name__)
                 shape_args = obstacle.shape.get_attrs()
@@ -174,13 +174,9 @@ class DynamicVisualiser:
         Update the positions of the obstacles.
         """
 
-        obstacles: list[Obstacle] = self.layout.dynamic_obstacles + self.layout.static_obstacles
-        if len(self.layout.dynamic_obstacles) != len(self.actors):
-            raise IndexError("Number of obstacles seems to have changed during simulation")
-        for obstacle, actor in zip(self.layout.dynamic_obstacles, self.actors):
-            obstacle.move(self.update_interval)
-            for other_obstacle in obstacles:
-                if obstacle != other_obstacle and obstacle.is_new_collision(other_obstacle):
-                    obstacle.ricochet(other_obstacle)
+        self.map.update(self.update_interval)
+        if len(self.map.dynamic_obstacles) != len(self.actors):
+            raise IndexError("Number of dynamic obstacles seems to have changed during simulation")
+        for obstacle, actor in zip(self.map.dynamic_obstacles, self.actors):
             actor.set(center=tuple(obstacle.anchor_point.components[:2]))
         return self.actors
