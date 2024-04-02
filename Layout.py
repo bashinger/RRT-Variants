@@ -1,26 +1,34 @@
 from typing import Tuple
 from Obstacle import DynamicObstacle, StaticObstacle
+import Shapes
 
 
 class Layout:
     size: Tuple[int, int]
-    static_obstacles: list[StaticObstacle]
     start: Tuple[int, int]
     # TODO: Change end to goal
     end: Tuple[int, int]
-
-    def __init__(self) -> None:
-        # defaults
-        self.size = (500, 500)
-        self.start = (20, 20)
-        self.end = (480, 480)
-
-
-class DynamicLayout(Layout):
+    static_obstacles: list[StaticObstacle]
     dynamic_obstacles: list[DynamicObstacle]
 
-    def update(self, t: float):
-        """
-        Update the positions of all dynamic obstacles over time `t`
-        """
-        [obstacle.move(t) for obstacle in self.dynamic_obstacles]
+    def __init__(
+        self,
+        size: Tuple[int, int] = (500, 500),
+        start: Tuple[int, int] = (20, 20),
+        end: Tuple[int, int] = (480, 480),
+        static_obstacles: list[StaticObstacle] = [],
+        dynamic_obstacles: list[DynamicObstacle] = [],
+    ) -> None:
+        # defaults
+        self.size = size
+        self.start = start
+        self.end = end
+        self.static_obstacles = [
+            StaticObstacle((0, 0), Shapes.Rectangle, (1, 500)),  # Map's Left border
+            StaticObstacle((0, 499), Shapes.Rectangle, (500, 1)),  # Map's Top border
+            StaticObstacle((499, 0), Shapes.Rectangle, (1, 500)),  # Map's Right border
+            StaticObstacle((0, 0), Shapes.Rectangle, (500, 1)),  # Map's Bottom border
+            *static_obstacles,
+        ]
+        self.dynamic_obstacles = dynamic_obstacles
+        return

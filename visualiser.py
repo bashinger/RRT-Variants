@@ -2,14 +2,10 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 import matplotlib.patches as patches
-import matplotlib.transforms as transforms
-from matplotlib.artist import Artist
 from matplotlib.animation import FuncAnimation
-from map_layouts import DynamicLayout
+from Layout import Layout
 from Shapes import Circle
 from Obstacle import Obstacle
-from functools import partial
-from typing import Type
 
 
 class Visualiser:
@@ -107,11 +103,11 @@ class DynamicVisualiser:
 
     fig: Figure
     ax: Axes
-    layout: DynamicLayout
+    layout: Layout
     anim: FuncAnimation
     actors: list[patches.Patch]
 
-    def __init__(self, render_freq: int, layout: DynamicLayout) -> None:
+    def __init__(self, render_freq: int, layout: Layout) -> None:
         """
         Parameters:
         ----------
