@@ -34,6 +34,34 @@ class LayoutBalloons(Layout):
 
 ### STATIC LAYOUTS
 # The Cross - A simple cross-shaped environment
+class LayoutCross(Layout):
+    def __init__(self) -> None:
+        super().__init__()
+        self.static_obstacles = [
+            StaticObstacle((225, 100), shapes.Rectangle, (50, 300)),  # Vertical bar
+            StaticObstacle((100, 225), shapes.Rectangle, (300, 50)),  # Horizontal bar
+        ]
+        return
+
+# Maze
+class LayoutMaze(Layout):
+    def __init__(self) -> None:
+        super().__init__()
+        self.static_obstacles = [
+            # Vertical segments
+            StaticObstacle((200, 0), shapes.Rectangle, (10, 100)),
+            StaticObstacle((400, 0), shapes.Rectangle, (10, 200)),
+            StaticObstacle((100, 100), shapes.Rectangle, (10, 100)),
+            StaticObstacle((300, 200), shapes.Rectangle, (10, 100)),
+            # Horizontal segments
+            StaticObstacle((0, 200), shapes.Rectangle, (100, 10)),
+            StaticObstacle((100, 300), shapes.Rectangle, (200, 10)),
+            StaticObstacle((300, 100), shapes.Rectangle, (100, 10)),
+            StaticObstacle((200, 300), shapes.Rectangle, (100, 10)),
+        ]
+        return
+
+# The Cross - A simple cross-shaped environment
 # Testing basic navigation
 def layout_simple_cross():
     layout = {
