@@ -2,7 +2,7 @@
 # The layout of the maps is defined as a function that returns the size of the map and the obstacles.
 
 from obstacle import DynamicObstacle, StaticObstacle
-from layout import DynamicLayout
+from layout import Layout
 import shapes
 
 ## LAYOUTS
@@ -11,7 +11,7 @@ import shapes
 ### DYNAMIC LAYOUTS
 # Basic dynamic layout
 # No static obstacles
-class LayoutBalloons(DynamicLayout):
+class LayoutBalloons(Layout):
     def __init__(self) -> None:
         super().__init__()
         self.static_obstacles = [

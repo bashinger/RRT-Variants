@@ -2,6 +2,7 @@ from typing import Tuple
 from obstacle import DynamicObstacle, StaticObstacle
 import shapes
 
+
 class Layout:
     size: Tuple[int, int]
     start: Tuple[int, int]
