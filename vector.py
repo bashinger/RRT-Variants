@@ -74,8 +74,8 @@ class Vector:
         return
 
     def __update_from_polar(self) -> None:
-        if self.angle == 0:
-            self.components[0] = self.magnitude
+        if self.angle == 0 or self.angle == pi:
+            self.components[0] = self.magnitude if self.angle == 0 else -self.magnitude
         else:
             self.components[0] = cos(self.angle) * self.magnitude
             self.components[1] = sin(self.angle) * self.magnitude
