@@ -3,6 +3,7 @@
 
 from Obstacle import DynamicObstacle, StaticObstacle
 from Layout import DynamicLayout
+import Shapes
 
 ## LAYOUTS
 
@@ -14,19 +15,19 @@ class LayoutBalloons(DynamicLayout):
     def __init__(self) -> None:
         super().__init__()
         self.static_obstacles = [
-            StaticObstacle("rectangle", (0, 0), (5, 500)),  # Map's Left border
-            StaticObstacle("rectangle", (495, 0), (5, 500)),  # Map's Right border
-            StaticObstacle("rectangle", (0, 495), (500, 5)),  # Map's Top border
-            StaticObstacle("rectangle", (0, 0), (500, 5)),  # Map's Bottom border
+            StaticObstacle((0, 0), Shapes.Rectangle, (5, 500)),  # Map's Left border
+            StaticObstacle((495, 0), Shapes.Rectangle, (5, 500)),  # Map's Right border
+            StaticObstacle((0, 495), Shapes.Rectangle, (500, 5)),  # Map's Top border
+            StaticObstacle((0, 0), Shapes.Rectangle, (500, 5)),  # Map's Bottom border
         ]
         self.dynamic_obstacles = [
-            DynamicObstacle("circle", (40,), (60, 210), (600, -360)),
-            DynamicObstacle("circle", (20,), (70, 60), (300, -663)),
-            DynamicObstacle("circle", (30,), (100, 100), (721, 223)),
-            DynamicObstacle("circle", (30,), (200, 150), (125, 664)),
-            DynamicObstacle("circle", (30,), (350, 400), (935, -95)),
-            DynamicObstacle("circle", (30,), (100, 380), (1041, 145)),
-            DynamicObstacle("circle", (30,), (170, 420), (253, -883)),
+            DynamicObstacle((60, 210), (600, -360), Shapes.Circle, (40,)),
+            DynamicObstacle((70, 60), (300, -663), Shapes.Circle, (20,)),
+            DynamicObstacle((100, 100), (721, 223), Shapes.Circle, (30,)),
+            DynamicObstacle((170, 420), (253, -883), Shapes.Circle, (30,)),
+            DynamicObstacle((200, 150), (125, 664), Shapes.Circle, (30,)),
+            DynamicObstacle((350, 400), (935, -95), Shapes.Circle, (30,)),
+            DynamicObstacle((100, 380), (1041, 145), Shapes.Circle, (30,)),
         ]
         return
 
