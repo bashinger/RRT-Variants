@@ -1,7 +1,6 @@
 from typing import Tuple
-from Obstacle import DynamicObstacle, StaticObstacle
-import Shapes
-
+from obstacle import DynamicObstacle, StaticObstacle
+import shapes
 
 class Layout:
     size: Tuple[int, int]
@@ -24,10 +23,10 @@ class Layout:
         self.start = start
         self.end = end
         self.static_obstacles = [
-            StaticObstacle((0, 0), Shapes.Rectangle, (1, 500)),  # Map's Left border
-            StaticObstacle((0, 499), Shapes.Rectangle, (500, 1)),  # Map's Top border
-            StaticObstacle((499, 0), Shapes.Rectangle, (1, 500)),  # Map's Right border
-            StaticObstacle((0, 0), Shapes.Rectangle, (500, 1)),  # Map's Bottom border
+            StaticObstacle((0, 0), shapes.Rectangle, (1, 500)),  # Map's Left border
+            StaticObstacle((0, 499), shapes.Rectangle, (500, 1)),  # Map's Top border
+            StaticObstacle((499, 0), shapes.Rectangle, (1, 500)),  # Map's Right border
+            StaticObstacle((0, 0), shapes.Rectangle, (500, 1)),  # Map's Bottom border
             *static_obstacles,
         ]
         self.dynamic_obstacles = dynamic_obstacles

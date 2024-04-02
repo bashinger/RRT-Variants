@@ -3,9 +3,9 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 import matplotlib.patches as patches
 from matplotlib.animation import FuncAnimation
-from Layout import Layout
-from Shapes import Circle
-from Obstacle import Obstacle
+from layout import Layout
+from shapes import Circle
+from obstacle import Obstacle
 
 
 class Visualiser:

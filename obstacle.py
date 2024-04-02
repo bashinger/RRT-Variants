@@ -1,7 +1,7 @@
 from typing import Type, Tuple
 
-from Vector import Vector
-from Shapes import Body, Circle, Rectangle
+from vector import Vector
+from shapes import Body, Circle, Rectangle
 
 
 class Obstacle:
