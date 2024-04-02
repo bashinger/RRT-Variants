@@ -5,7 +5,9 @@ import matplotlib.patches as patches
 import matplotlib.transforms as transforms
 from matplotlib.artist import Artist
 from matplotlib.animation import FuncAnimation
-from map_layouts import DynamicLayout, Circle, Obstacle
+from map_layouts import DynamicLayout
+from Shapes import Circle
+from Obstacle import Obstacle
 from functools import partial
 from typing import Type
 
