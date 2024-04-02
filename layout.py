@@ -1,13 +1,14 @@
 from typing import Tuple
+from node import Node
 from obstacle import DynamicObstacle, StaticObstacle
 import shapes
 
 
 class Layout:
     size: Tuple[int, int]
-    start: Tuple[int, int]
+    start: Node
     # TODO: Change end to goal
-    end: Tuple[int, int]
+    end: Node
     static_obstacles: list[StaticObstacle]
     dynamic_obstacles: list[DynamicObstacle]
 
@@ -21,8 +22,8 @@ class Layout:
     ) -> None:
         # defaults
         self.size = size
-        self.start = start
-        self.end = end
+        self.start = Node(start)
+        self.end = Node(end)
         self.static_obstacles = [
             StaticObstacle((0, 0), shapes.Rectangle, (1, 500)),  # Map's Left border
             StaticObstacle((0, 499), shapes.Rectangle, (500, 1)),  # Map's Top border

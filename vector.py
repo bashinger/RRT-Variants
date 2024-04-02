@@ -91,6 +91,9 @@ class Vector:
         magnitude = abs(factor) * self.magnitude
         return Vector.from_polar(magnitude, angle)
 
+    def get_magnitude(self) -> float:
+        return self.magnitude
+
     def __add__(self, other):
         if len(self.components) != len(other.components):
             raise ValueError("Cannot add vectors of different dimensions")
