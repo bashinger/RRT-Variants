@@ -14,10 +14,10 @@ class LayoutBalloons(DynamicLayout):
     def __init__(self) -> None:
         super().__init__()
         self.static_obstacles = [
-            StaticObstacle("rectangle", (5, 490), (5, 5)),  # Map's Left border
-            StaticObstacle("rectangle", (5, 495), (490, 5)),  # Map's Right border
-            StaticObstacle("rectangle", (495, 5), (5, 490)),  # Map's Top border
-            StaticObstacle("rectangle", (495, 5), (5, 5)),  # Map's Bottom border
+            StaticObstacle("rectangle", (0, 0), (5, 500)),  # Map's Left border
+            StaticObstacle("rectangle", (495, 0), (5, 500)),  # Map's Right border
+            StaticObstacle("rectangle", (0, 495), (500, 5)),  # Map's Top border
+            StaticObstacle("rectangle", (0, 0), (500, 5)),  # Map's Bottom border
         ]
         self.dynamic_obstacles = [
             DynamicObstacle("circle", (40,), (60, 210), (600, -360)),
