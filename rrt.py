@@ -30,13 +30,29 @@ class RRT:
             return tuple(n2.position.components[:2])
         else:
             diff = diff.scale(float(self.step_size) / dist)
-            print("step_from_to magnitude returned: ", diff.magnitude)
+            # print("step_from_to magnitude returned: ", diff.magnitude)
             return tuple((n1.position + diff).components[:2])
 
     def find_path(self):
-        found = False
-        while not found:
-            found = self.seek_new_candidate()
+        while True:
+            random_node = Node(
+                (
+                    np.random.randint(0, self.map.size[0]),
+                    np.random.randint(0, self.map.size[1]),
+                )
+            )
+            nearest = self.map.nearest_node(random_node)
+            new_position = self.step_from_to(nearest, random_node)
+            new_node = Node(new_position, parent=nearest)
+            # print(new_node)
+
+            if not self.map.is_colliding(new_node):
+                new_node.cost = nearest.cost + nearest.distance(new_node)
+                self.map.nodes.append(new_node)
+                if new_node.distance(self.map.end) <= self.step_size:
+                    self.map.end.parent = new_node
+                    self.map.best_path = self.map.invert(new_node)
+                    return
 
 
     def seek_new_candidate(self):

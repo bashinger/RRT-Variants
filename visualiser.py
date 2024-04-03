@@ -185,7 +185,7 @@ class DynamicVisualiser:
         # update the last plotted index
         last_plotted_index = len(self.map.nodes) - 1
         self.rrt.seek_new_candidate()
-        print(f"Last plotted index: {last_plotted_index}")
+        # print(f"Last plotted index: {last_plotted_index}")
 
         # plot the newly added nodes that haven't yet been plotted
         for node in self.map.nodes[self.last_plotted_index + 1:last_plotted_index + 1]:
@@ -196,6 +196,7 @@ class DynamicVisualiser:
                 [node.position.components[1], node.parent.position.components[1]],
                 "-r.",
                 linewidth=0.4,
+                markersize=2,
             )
                 # [self.ax.add_line(line) for line in lines]
                 # self.actors.append(lines)
@@ -213,6 +214,7 @@ class DynamicVisualiser:
                 [node.position.components[1] for node in self.map.best_path],
                 "-b.",
                 linewidth=0.8,
+                markersize=2,
             )
             # self.actors.append(lines)
             # [self.ax.add_line(line) for line in lines]
