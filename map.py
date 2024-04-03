@@ -24,7 +24,7 @@ class Map(Layout):
     A dynamic, self-updating layout with a list of nodes discovered by a path planner
     """
 
-    __type: Type[Layout]
+    type: Type[Layout]
     nodes: List[Node]
     best_path: List[Node] | None
 
@@ -35,14 +35,14 @@ class Map(Layout):
         # ! this could be a bad practice!
         self.__dict__ = deepcopy(layout.__dict__)
 
-        self.__type = type(layout)
+        self.type = type(layout)
         self.nodes = [self.start]
         self.best_path = None
         return
 
     def __str__(self) -> str:
         return (
-            f"Map of layout {self.__type}:\n"
+            f"Map of layout {self.type}:\n"
             f"Size: {self.size}\n"
             f"Start: {self.start.position}\n"
             f"End: {self.end.position}\n"
