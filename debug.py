@@ -248,6 +248,6 @@ def proc_time(func):
 # ---===---
 # OS-specific shenanigans
 if system() == "Windows":
-    wait_for_keypress_cmd = ["@pause"]
+    wait_for_keypress_cmd = ["cmd", "/c", "@pause"]
 else:
     wait_for_keypress_cmd = ["/bin/bash", "-c", "read -s -n 1"]
