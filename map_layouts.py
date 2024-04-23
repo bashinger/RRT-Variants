@@ -61,6 +61,24 @@ class LayoutMaze(Layout):
         ]
         return
 
+#### Half-converted Layouts
+# (layouts that were ported from the old format but never tested)
+
+# Narrow Pass
+class LayoutNarrowPass(Layout):
+    def __init__(self) -> None:
+        super().__init__()
+        self.static_obstacles = [
+            StaticObstacle((100, 0), shapes.Rectangle, (20, 490)),
+            StaticObstacle((130, 10), shapes.Rectangle, (20, 500)),
+            StaticObstacle((160, 0), shapes.Rectangle, (20, 245)),
+            StaticObstacle((160, 255), shapes.Rectangle, (20, 245)),
+        ]
+        return
+
+
+## OLD DEFNITIONS
+
 # The Cross - A simple cross-shaped environment
 # Testing basic navigation
 def layout_simple_cross():
