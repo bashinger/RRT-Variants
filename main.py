@@ -1,5 +1,6 @@
-from visualiser import Visualiser
-from map_layouts import layout_simple_cross, layout_maze, layout_urban
+from visualiser import DynamicVisualiser, Visualiser
+from map_layouts import LayoutCross, LayoutMaze, LayoutBalloons
+from map import Map
 from rrt import RRT
 from rrt_star import RRT_Star
 from dt_rrt_star import DT_RRT_Star
@@ -7,7 +8,7 @@ from q_rrt_star import Q_RRT_Star
 from lazy_dt_rrt_star import Lazy_DT_RRT_Star
 
 if __name__ == "__main__":
-    env = Visualiser(layout=layout_maze())
+    env = Map(LayoutCross())
     # env.preview_layout()
 
     # Choose the RRT Variant to use
@@ -15,7 +16,17 @@ if __name__ == "__main__":
     # variant = RRT_Star(env)
     # variant = Q_RRT_Star(env)
     # variant = DT_RRT_Star(env)
-    variant = Lazy_DT_RRT_Star(env)
+    # variant = Lazy_DT_RRT_Star(env)
 
-    final_node, path = variant.find_path()
-    env.visualize_path(variant.nodes, path)
+
+    # base_planner = RRT(env)
+    # planner = DT_RRT_Star.from_rrt(base_planner)
+    # OR
+    base_planner = RRT(env)
+    base_planner.find_path()
+    reference_path = base_planner.map.best_path
+    planner = DT_RRT_Star(env, rrt_path=reference_path)
+    _ = Visualiser(env)
+    planner = DT_RRT_Star(env, rrt_path=reference_path)
+
+    renderer = DynamicVisualiser(40, env, planner)
