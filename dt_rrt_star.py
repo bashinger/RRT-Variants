@@ -22,18 +22,19 @@ class DT_RRT_Star(RRT):
         self.mu_theta = np.pi / 2  # Mean angle (e.g., pointing upwards)
         if rrt_path is not None:
             _, self.seed_path = self._shortcut_path(rrt_path[-1])
-            self.map.nodes = [self.map.start]
-            self.map.best_path = None
         else:
             rrt = super().find_path()
             _, self.seed_path = self._shortcut_path(self.map.best_path[-1])
-            self.map.nodes = [self.map.start]
-            self.map.best_path = None
+
+        self.map.nodes = [self.map.start]
+        self.map.best_path = None
         return
 
 
     @classmethod
     def from_rrt(cls, rrt: RRT, neighbor_radius=20):
+        if (rrt.map.best_path == None):
+            rrt.find_path()
         return cls(rrt.map, rrt.step_size, neighbor_radius, rrt.map.best_path)
 
     def random_gaussian_point(self, nodes: list[Node]) -> Vector:
