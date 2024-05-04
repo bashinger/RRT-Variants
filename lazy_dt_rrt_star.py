@@ -245,6 +245,7 @@ class Lazy_DT_RRT_Star:
         # make the path have nodes each of increment `step_size`
         # by adding intermediate nodes. Needed for the Gaussian sampling
         # to work correctly
+        # TODO: this is a hacky way to do this. Find a better way
         current_node = final_node
         while current_node.parent is not None:
             if self.distance(current_node.position, current_node.parent.position) > self.step_size:
