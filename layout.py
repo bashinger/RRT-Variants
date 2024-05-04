@@ -22,7 +22,7 @@ class Layout:
     ) -> None:
         # defaults
         self.size = size
-        self.start = Node(start)
+        self.start = Node(start, cost=0)
         self.end = Node(end)
         self.static_obstacles = [
             StaticObstacle((0, 0), shapes.Rectangle, (1, 500)),  # Map's Left border
