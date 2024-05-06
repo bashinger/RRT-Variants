@@ -26,7 +26,7 @@ class Map(Layout):
 
     type: Type[Layout]
     nodes: List[Node]
-    best_path: List[Node] | None
+    path: List[Node] | None
 
     def __init__(self, layout: Layout) -> None:
         # super().__init__(layout.size, layout.start.position, layout.end.position, layout.static_obstacles, layout.dynamic_obstacles)
@@ -37,7 +37,7 @@ class Map(Layout):
 
         self.type = type(layout)
         self.nodes = [self.start]
-        self.best_path = None
+        self.path = None
         return
 
     def __str__(self) -> str:

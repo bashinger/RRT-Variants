@@ -73,10 +73,10 @@ class Visualiser:
                 )
 
         # draw the path
-        if self.map.best_path is not None:
+        if self.map.path is not None:
             self.ax.plot(
-                [node.position.components[0] for node in self.map.best_path],
-                [node.position.components[1] for node in self.map.best_path],
+                [node.position.components[0] for node in self.map.path],
+                [node.position.components[1] for node in self.map.path],
                 "-b.",
                 linewidth=0.8,
             )
@@ -208,10 +208,10 @@ class DynamicVisualiser:
         #     actor.set(center=tuple(obstacle.anchor_point.components[:2]))
 
         # if the path has been found, draw the optimal path and pause the animation
-        if self.map.best_path is not None:
+        if self.map.path is not None:
             lines += self.ax.plot(
-                [node.position.components[0] for node in self.map.best_path],
-                [node.position.components[1] for node in self.map.best_path],
+                [node.position.components[0] for node in self.map.path],
+                [node.position.components[1] for node in self.map.path],
                 "-b.",
                 linewidth=0.8,
                 markersize=2,

@@ -24,18 +24,18 @@ class DT_RRT_Star(RRT):
             _, self.seed_path = self._shortcut_path(rrt_path[-1])
         else:
             rrt = super().find_path()
-            _, self.seed_path = self._shortcut_path(self.map.best_path[-1])
+            _, self.seed_path = self._shortcut_path(self.map.path[-1])
 
         self.map.nodes = [self.map.start]
-        self.map.best_path = None
+        self.map.path = None
         return
 
 
     @classmethod
     def from_rrt(cls, rrt: RRT, neighbor_radius=20):
-        if (rrt.map.best_path == None):
+        if (rrt.map.path == None):
             rrt.find_path()
-        return cls(rrt.map, rrt.step_size, neighbor_radius, rrt.map.best_path)
+        return cls(rrt.map, rrt.step_size, neighbor_radius, rrt.map.path)
 
     def random_gaussian_point(self, nodes: list[Node]) -> Vector:
         random_node = random.choice(nodes)
@@ -149,7 +149,7 @@ class DT_RRT_Star(RRT):
 
             if new_node.distance(self.map.end) <= self.step_size:
                 self.map.end.parent = new_node
-                self.map.best_path = self.map.invert(new_node)
+                self.map.path = self.map.invert(new_node)
                 print("INFO: Goal reached!")
                 return True
         return False

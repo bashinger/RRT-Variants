@@ -51,7 +51,7 @@ class RRT:
                 self.map.nodes.append(new_node)
                 if new_node.distance(self.map.end) <= self.step_size:
                     self.map.end.parent = new_node
-                    self.map.best_path = self.map.invert(new_node)
+                    self.map.path = self.map.invert(new_node)
                     return
 
 
@@ -72,6 +72,6 @@ class RRT:
             self.map.nodes.append(new_node)
             if new_node.distance(self.map.end) <= self.step_size:
                 self.map.end.parent = new_node
-                self.map.best_path = self.map.invert(new_node)
+                self.map.path = self.map.invert(new_node)
                 return True
         return False
