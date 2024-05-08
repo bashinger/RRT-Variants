@@ -25,8 +25,10 @@ if __name__ == "__main__":
     base_planner = RRT(env)
     base_planner.find_path()
     reference_path = base_planner.map.path
-    planner = DT_RRT_Star(env, rrt_path=reference_path)
-    _ = Visualiser(env)
+
+    # to view ref path
+    # _ = Visualiser(env)
+
     planner = DT_RRT_Star(env, rrt_path=reference_path)
 
     renderer = DynamicVisualiser(40, env, planner)
