@@ -52,8 +52,11 @@ class RRT:
                 if new_node.distance(self.map.end) <= self.step_size:
                     self.map.end.parent = new_node
                     self.map.path = self.map.invert(new_node)
+                    self.map.is_stagnant = True
                     return
 
+    def iterate(self) -> None:
+        return self.seek_new_candidate()
 
     def seek_new_candidate(self):
         random_node = Node(
@@ -73,5 +76,5 @@ class RRT:
             if new_node.distance(self.map.end) <= self.step_size:
                 self.map.end.parent = new_node
                 self.map.path = self.map.invert(new_node)
-                return True
-        return False
+                self.map.is_stagnant = True
+        return

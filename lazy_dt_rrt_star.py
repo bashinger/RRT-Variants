@@ -37,15 +37,23 @@ class Lazy_DT_RRT_Star(DT_RRT_Star):
 
                 if new_node.distance(self.map.end) <= self.step_size:
                     print("INFO: Goal reached!")
+                    self.map.end.parent = new_node
+                    self.map.path = self.map.invert(new_node)
                     goal_reached = True
 
             # self.find_path.pause_condition.release()
 
             # optimise path (re_search_parent)
-            self.optimise_path()
+        self.optimise_path()
         return
 
-    def seek_new_candidate(self) -> bool:
+    def iterate(self) -> None:
+        if self.map.path is None:
+            return self.seek_new_candidate()
+        else:
+            return self.optimise_path()
+
+    def seek_new_candidate(self) -> None:
         random_position = Node(tuple(self.random_gaussian_point(self.seed_path).components[:2]))
         nearest = self.map.nearest_node(random_position)
         new_position = self.step_from_to(nearest, random_position)
@@ -60,9 +68,9 @@ class Lazy_DT_RRT_Star(DT_RRT_Star):
             if new_node.distance(self.map.end) <= self.step_size:
                 self.map.end.parent = new_node
                 self.map.path = self.map.invert(new_node)
+                # NOTE: not setting map as stagnant!
                 print("INFO: Goal reached!")
-                return True
-        return False
+        return
 
     def _trace_path(self, final_node):
         path: list[tuple] = []
@@ -107,6 +115,6 @@ class Lazy_DT_RRT_Star(DT_RRT_Star):
             self.re_search_parent(current_node)
             current_node = current_node.parent
 
-        # retrace the path from the start to the goal
-        # and return the optimised path
-        return final_node, self.map.invert(final_node)
+        self.map.path = self.map.invert(final_node)
+        self.map.is_stagnant = True
+        return

@@ -28,6 +28,7 @@ class DT_RRT_Star(RRT):
 
         self.map.nodes = [self.map.start]
         self.map.path = None
+        self.map.is_stagnant = False
         return
 
 
@@ -128,13 +129,15 @@ class DT_RRT_Star(RRT):
                 self.map.nodes.append(new_node)
 
                 if new_node.distance(self.map.end) <= self.step_size:
+                    self.map.end.parent = new_node
+                    self.map.path = self.map.invert(new_node)
                     print("INFO: Goal reached!")
                     goal_reached = True
 
             # self.find_path.pause_condition.release()
         return
 
-    def seek_new_candidate(self) -> bool:
+    def iterate(self) -> None:
         random_position = Node(tuple(self.random_gaussian_point(self.seed_path).components[:2]))
         nearest = self.map.nearest_node(random_position)
         new_position = self.step_from_to(nearest, random_position)
@@ -151,8 +154,7 @@ class DT_RRT_Star(RRT):
                 self.map.end.parent = new_node
                 self.map.path = self.map.invert(new_node)
                 print("INFO: Goal reached!")
-                return True
-        return False
+        return
 
     @proc_time
     def _shortcut_path(self, last_final_node: Node):

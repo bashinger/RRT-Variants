@@ -27,6 +27,7 @@ class Map(Layout):
     type: Type[Layout]
     nodes: List[Node]
     path: List[Node] | None
+    is_stagnant: bool
 
     def __init__(self, layout: Layout) -> None:
         # super().__init__(layout.size, layout.start.position, layout.end.position, layout.static_obstacles, layout.dynamic_obstacles)
@@ -38,6 +39,7 @@ class Map(Layout):
         self.type = type(layout)
         self.nodes = [self.start]
         self.path = None
+        self.is_stagnant = False
         return
 
     def __str__(self) -> str:

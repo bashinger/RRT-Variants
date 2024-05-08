@@ -8,7 +8,7 @@ from matplotlib.animation import FuncAnimation
 from map import Map
 from shapes import Circle
 from obstacle import Obstacle
-
+from rrt import RRT
 
 class Visualiser:
     """
@@ -105,7 +105,7 @@ class DynamicVisualiser:
     actors: list[Artist]
     last_plotted_index: int
 
-    def __init__(self, render_freq: int, map: Map, rrt) -> None:
+    def __init__(self, render_freq: int, map: Map, rrt: RRT) -> None:
         """
         Parameters:
         ----------
@@ -184,7 +184,7 @@ class DynamicVisualiser:
 
         # update the last plotted index
         last_plotted_index = len(self.map.nodes) - 1
-        self.rrt.seek_new_candidate()
+        self.rrt.iterate()
         # print(f"Last plotted index: {last_plotted_index}")
 
         # plot the newly added nodes that haven't yet been plotted
@@ -208,7 +208,7 @@ class DynamicVisualiser:
         #     actor.set(center=tuple(obstacle.anchor_point.components[:2]))
 
         # if the path has been found, draw the optimal path and pause the animation
-        if self.map.path is not None:
+        if self.map.is_stagnant:
             lines += self.ax.plot(
                 [node.position.components[0] for node in self.map.path],
                 [node.position.components[1] for node in self.map.path],
