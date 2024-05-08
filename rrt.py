@@ -3,6 +3,7 @@
 
 
 import numpy as np
+import math
 from visualiser import Visualiser
 
 
@@ -21,7 +22,7 @@ class RRT:
         self.nodes[0].cost = 0  # Cost to reach the start node is 0
 
     def distance(self, a, b):
-        return np.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+        return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
     def is_collision_free(self, node):
         for obstacle_anchor_point, size in self.map_env.obstacles:
@@ -41,9 +42,20 @@ class RRT:
         if self.distance(n1, n2) < self.step_size:
             return n2
         else:
-            # Theta is the angle between the two points according to the x-axis
-            theta = np.arctan2(n2[1] - n1[1], n2[0] - n1[0])
-            return n1[0] + self.step_size * np.cos(theta), n1[1] + self.step_size * np.sin(theta)
+            if n1[0] == n2[0]:
+                if n1[1] < n2[1]:
+                    return n1[0], n1[1] + self.step_size
+                elif n1[1] > n2[1]:
+                    return n1[0], n1[1] - self.step_size
+                else:
+                    return n1[0] + self.step_size, n1[1]
+            x = (n2[1] - n1[1]) / (n2[0] - n1[0])
+            if n2[0] < n1[0]:
+                sign = -1
+            else:
+                sign = 1
+            tmp = 1 / math.sqrt(1+x**2) * sign
+            return n1[0] + self.step_size * (tmp), n1[1] + self.step_size * (x*tmp)
 
     def find_path(self):
         while True:

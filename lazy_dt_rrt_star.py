@@ -2,6 +2,7 @@ import numpy as np
 import random
 from visualiser import Visualiser
 from rrt import RRT
+import math
 from debug import debug_planner
 
 
@@ -58,7 +59,7 @@ class Lazy_DT_RRT_Star:
         return gaussian_point
 
     def distance(self, a, b):
-        return np.linalg.norm(np.array(a) - np.array(b))
+        return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
 
     def nearest_node(self, position):
         return min(self.nodes, key=lambda node: self.distance(node.position, position))
@@ -67,8 +68,20 @@ class Lazy_DT_RRT_Star:
         if self.distance(n1, n2) < self.step_size:
             return n2
         else:
-            theta = np.arctan2(n2[1] - n1[1], n2[0] - n1[0])
-            return n1[0] + self.step_size * np.cos(theta), n1[1] + self.step_size * np.sin(theta)
+            if n1[0] == n2[0]:
+                if n1[1] < n2[1]:
+                    return n1[0], n1[1] + self.step_size
+                elif n1[1] > n2[1]:
+                    return n1[0], n1[1] - self.step_size
+                else:
+                    return n1[0] + self.step_size, n1[1]
+            x = (n2[1] - n1[1]) / (n2[0] - n1[0])
+            if n2[0] < n1[0]:
+                sign = -1
+            else:
+                sign = 1
+            tmp = 1 / math.sqrt(1+x**2) * sign
+            return n1[0] + self.step_size * (tmp), n1[1] + self.step_size * (x*tmp)
 
     def find_neighbors(self, new_node):
         return [node for node in self.nodes if self.distance(node.position, new_node.position) < self.neighbor_radius]
@@ -132,19 +145,13 @@ class Lazy_DT_RRT_Star:
             new_node.parent = potential_parent
             new_node.cost = best_cost
 
-    @debug_planner
     def find_path(self):
-        self.find_path.pause_condition.acquire(blocking=True)
         rrt = RRT(self.map_env)
         _, shortcut_path = self._shortcut_path(rrt.find_path()[0])
         print("INFO: found shortcut path!")
-        self.find_path.pause_condition.notify()
-        self.find_path.pause_condition.release()
 
         goal_reached = False
         while not goal_reached:
-            self.find_path.pause_condition.acquire(blocking=True)
-            self.find_path.pause_condition.wait_for(lambda: not self.find_path.paused)
             random_position = self.random_gaussian_point(shortcut_path)
             nearest = self.nearest_node(random_position)
             new_position = self.step_from_to(nearest.position, random_position)
@@ -160,8 +167,6 @@ class Lazy_DT_RRT_Star:
                     final_node = new_node
                     path = self._trace_path(new_node)
                     goal_reached = True
-
-            self.find_path.pause_condition.release()
 
         final_node: Node
         path: list[tuple]
