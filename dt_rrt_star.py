@@ -102,20 +102,21 @@ class DT_RRT_Star(RRT):
             new_node.parent = potential_parent
             new_node.cost = best_cost
 
+    @debug_planner
     def find_path(self):
         # first, notify any pauser daemons that we are starting
-        # self.find_path.pause_condition.acquire(blocking=True)
+        self.find_path.pause_condition.acquire(blocking=True)
         # rrt = RRT(self.map)
         # last_node, _ = rrt.find_path()
         # _, shortcut_path = self._shortcut_path(self.shortcut_path[-1])
         # print("INFO: found shortcut path!")
-        # self.find_path.pause_condition.notify()
-        # self.find_path.pause_condition.release()
+        self.find_path.pause_condition.notify()
+        self.find_path.pause_condition.release()
 
         goal_reached = False
         while not goal_reached:
-            # self.find_path.pause_condition.acquire(blocking=True)
-            # self.find_path.pause_condition.wait_for(lambda: not self.find_path.paused)
+            self.find_path.pause_condition.acquire(blocking=True)
+            self.find_path.pause_condition.wait_for(lambda: not self.find_path.paused)
             random_position = Node(tuple(self.random_gaussian_point(self.seed_path).components[:2]))
             nearest = self.map.nearest_node(random_position)
             new_position = self.step_from_to(nearest, random_position)
@@ -134,7 +135,7 @@ class DT_RRT_Star(RRT):
                     print("INFO: Goal reached!")
                     goal_reached = True
 
-            # self.find_path.pause_condition.release()
+            self.find_path.pause_condition.release()
         return
 
     def iterate(self) -> None:

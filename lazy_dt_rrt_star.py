@@ -10,20 +10,22 @@ from map import Map
 from copy import deepcopy
 
 class Lazy_DT_RRT_Star(DT_RRT_Star):
+
+    @debug_planner
     def find_path(self):
         # first, notify any pauser daemons that we are starting
-        # self.find_path.pause_condition.acquire(blocking=True)
+        self.find_path.pause_condition.acquire(blocking=True)
         # rrt = RRT(self.map)
         # last_node, _ = rrt.find_path()
         # _, shortcut_path = self._shortcut_path(self.shortcut_path[-1])
         # print("INFO: found shortcut path!")
-        # self.find_path.pause_condition.notify()
-        # self.find_path.pause_condition.release()
+        self.find_path.pause_condition.notify()
+        self.find_path.pause_condition.release()
 
         goal_reached = False
         while not goal_reached:
-            # self.find_path.pause_condition.acquire(blocking=True)
-            # self.find_path.pause_condition.wait_for(lambda: not self.find_path.paused)
+            self.find_path.pause_condition.acquire(blocking=True)
+            self.find_path.pause_condition.wait_for(lambda: not self.find_path.paused)
             random_position = Node(tuple(self.random_gaussian_point(self.seed_path).components[:2]))
             nearest = self.map.nearest_node(random_position)
             new_position = self.step_from_to(nearest, random_position)
@@ -41,7 +43,7 @@ class Lazy_DT_RRT_Star(DT_RRT_Star):
                     self.map.path = self.map.invert(new_node)
                     goal_reached = True
 
-            # self.find_path.pause_condition.release()
+            self.find_path.pause_condition.release()
 
             # optimise path (re_search_parent)
         self.optimise_path()

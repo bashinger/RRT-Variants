@@ -12,17 +12,17 @@ if __name__ == "__main__":
     # env.preview_layout()
 
     # Choose the RRT Variant to use
-    # variant = RRT(env)
-    # variant = RRT_Star(env)
-    # variant = Q_RRT_Star(env)
-    # variant = DT_RRT_Star(env)
-    # variant = Lazy_DT_RRT_Star(env)
+    planner = RRT(env)
+    # planner = RRT_Star(env)
+    # planner = Q_RRT_Star(env)
+    # planner = DT_RRT_Star(env)
+    # planner = Lazy_DT_RRT_Star(env)
 
 
     # (a)
-    base_planner = RRT(env)
+    # base_planner = RRT(env)
     # planner = DT_RRT_Star.from_rrt(base_planner)
-    planner = Lazy_DT_RRT_Star.from_rrt(base_planner)
+    # planner = Lazy_DT_RRT_Star.from_rrt(base_planner)
 
     # OR
 
@@ -37,4 +37,6 @@ if __name__ == "__main__":
     # # planner = DT_RRT_Star(env, rrt_path=reference_path)
     # planner = Lazy_DT_RRT_Star(env, rrt_path=reference_path)
 
-    renderer = DynamicVisualiser(1, env, planner)
+    # renderer = DynamicVisualiser(1, env, planner)
+    planner.find_path()
+    renderer = Visualiser(env)

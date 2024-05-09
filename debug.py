@@ -50,6 +50,8 @@ from platform import system
 from threading import Thread, Condition, Event
 from subprocess import Popen, DEVNULL
 from multiprocessing import Process  # matplotlib doesn't like being in a subthread
+from rrt import RRT
+from visualiser import Visualiser
 
 
 # Definitions
@@ -146,6 +148,8 @@ class Sauron(Interjektor):
     For internal use by `debug_planner` only
     """
 
+    planner: RRT
+
     def __init__(self, planner, *args, **kwargs):  # planner: the RRT object
         super().__init__(*args, **kwargs)
         self.planner = planner
@@ -166,18 +170,15 @@ class Sauron(Interjektor):
                 return
 
             # print the current state
-            goal = self.planner.map_env.goal
+            goal = self.planner.map.end
             print(
-                "Current minimum distance to node: ",
-                self.planner.distance(self.planner.nearest_node(goal).position, goal),
+                "Current minimum distance to end goal: ",
+                self.planner.map.nearest_node(goal).distance(goal),
                 file=stderr,
             )
 
             # draw the current state
-            sauron = Process(
-                target=self.planner.map_env.visualize_path,
-                args=(self.planner.nodes, self.planner._trace_path(self.planner.nodes[-1])),
-            )
+            sauron = Process(target=Visualiser, args=[self.planner.map])
             sauron.start()
             sauron.join()
 
